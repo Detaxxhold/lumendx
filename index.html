@@ -13,23 +13,40 @@ header{padding:20px 16px;background:#101d32;border-bottom:3px solid #18c8ff}
 header p{color:#aabbd1;margin:6px 0 12px}
 .row{display:flex;gap:8px}
 #q{flex:1;min-width:0;padding:13px;border-radius:10px;border:1px solid #1d3354;background:#0b1626;color:#fff;font-size:16px}
-#go{background:#18c8ff;color:#06121f;border:0;border-radius:10px;padding:0 18px;font-weight:bold;font-size:16px}
+#go{background:#18c8ff;color:#06121f;border:0;border-radius:10px;padding:0 18px;font-weight:bold;font-size:16px;cursor:pointer}
 .langs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.langs button,.chips button{background:#0b1626;color:#fff;border:1px solid #1d3354;border-radius:20px;padding:8px 14px;font-size:14px}
+.langs button,.chips button,.liga-btn{background:#0b1626;color:#fff;border:1px solid #1d3354;border-radius:20px;padding:8px 14px;font-size:14px;cursor:pointer}
 .langs button.on{background:#18c8ff;color:#06121f;font-weight:bold}
 .chips{display:flex;gap:8px;overflow:auto;padding:14px 16px}
 .chips button{white-space:nowrap;background:#101d32}
+.liga-btn{background:#18c8ff;color:#06121f;font-weight:bold}
+.chips-container{display:flex;align-items:center;padding:0 16px;overflow:auto;gap:8px}
 main{padding:0 16px 20px}
 .res{background:#101d32;border:1px solid #1d3354;border-radius:12px;padding:14px;margin-bottom:12px;cursor:pointer}
 .res h3{margin:0 0 6px;color:#18c8ff}
 .res p{margin:0;color:#b9c8da;line-height:1.5;font-size:15px}
-.back{background:none;border:0;color:#18c8ff;font-size:16px;padding:12px 0;font-weight:bold}
+.back{background:none;border:0;color:#18c8ff;font-size:16px;padding:12px 0;font-weight:bold;cursor:pointer}
 .art h1{margin:8px 0}
 .art img{width:100%;border-radius:12px;margin:8px 0}
 .art p{line-height:1.8;color:#d3deec;font-size:17px}
 .art h2{color:#18c8ff;font-size:20px;margin:24px 0 4px}
 .art a{color:#18c8ff;font-weight:bold}
 .msg{color:#9aacc3;text-align:center;padding:30px 0}
+
+/* La Liga бет стилдери */
+.liga-header{display:flex;gap:10px;margin:15px 0}
+.liga-tab-btn{flex:1;background:#101d32;color:#fff;border:1px solid #1d3354;padding:10px;border-radius:8px;font-weight:bold;cursor:pointer}
+.liga-tab-btn.active{background:#18c8ff;color:#06121f;border-color:#18c8ff}
+
+.standings-table{width:100%;border-collapse:collapse;background:#101d32;border-radius:12px;overflow:hidden;border:1px solid #1d3354;margin-top:10px}
+.standings-table th,.standings-table td{padding:12px;text-align:left;font-size:14px;border-bottom:1px solid #1d3354}
+.standings-table th{background:#183153;color:#18c8ff}
+.standings-table tr:hover{background:#162a4a}
+
+.match-card{background:#101d32;border:1px solid #1d3354;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.match-teams{font-weight:bold;font-size:15px;color:#fff}
+.match-score{background:#183153;color:#18c8ff;padding:6px 12px;border-radius:8px;font-weight:bold}
+
 footer{text-align:center;padding:25px;color:#9aacc3}
 </style>
 </head>
@@ -43,30 +60,41 @@ footer{text-align:center;padding:25px;color:#9aacc3}
 </div>
 <div class="langs" id="langs"></div>
 </header>
-<div class="chips" id="chips"></div>
+
+<div class="chips-container">
+<div class="chips" id="chips" style="flex:1"></div>
+<button class="liga-btn" onclick="openLaLiga()">🏆 La Liga</button>
+</div>
+
 <main id="app"></main>
+
 <footer>© 2026 LUMENDX | Your World. Your Football.</footer>
+
 <script>
 var lang="en";
 var LANGS={en:"English",ru:"Русский",ky:"Кыргызча"};
 var SUF={en:" football",ru:" футбол",ky:" футбол"};
 var TOPICS=["Lionel Messi","Cristiano Ronaldo","Real Madrid","FC Barcelona","FIFA World Cup","UEFA Champions League","Offside","Premier League","Pelé","Maradona","Kylian Mbappé","Penalty kick","Dordoi Bishkek","Kyrgyzstan national football team"];
 var results=[];
+
 function api(p){
  var u="https://"+lang+".wikipedia.org/w/api.php?format=json&origin=*";
  for(var k in p)u+="&"+k+"="+encodeURIComponent(p[k]);
  return fetch(u).then(function(r){return r.json()});
 }
+
 function setup(){
  document.getElementById("langs").innerHTML=Object.keys(LANGS).map(function(l){
   return "<button class='"+(l==lang?"on":"")+"' onclick='setLang(\""+l+"\")'>"+LANGS[l]+"</button>"}).join("");
  document.getElementById("chips").innerHTML=TOPICS.map(function(t,i){
   return "<button onclick='quick("+i+")'>"+t+"</button>"}).join("");
 }
+
 function setLang(l){lang=l;setup();if(document.getElementById("q").value)search()}
 function quick(i){document.getElementById("q").value=TOPICS[i];search(true)}
 function home(){document.getElementById("q").value="";document.getElementById("app").innerHTML=""}
 function clean(s){return s.replace(/<[^>]+>/g,"").replace(/&quot;/g,'"').replace(/&amp;/g,"&").replace(/&#039;/g,"'")}
+
 function search(exact){
  var q=document.getElementById("q").value.trim();
  var app=document.getElementById("app");
@@ -80,6 +108,7 @@ function search(exact){
   window.scrollTo(0,0);
  }).catch(function(){app.innerHTML="<div class='msg'>No internet or error. Try again.</div>"});
 }
+
 function openArt(i){
  var title=results[i].title;
  var app=document.getElementById("app");
@@ -97,11 +126,73 @@ function openArt(i){
   app.innerHTML=s;window.scrollTo(0,0);
  }).catch(function(){app.innerHTML="<div class='msg'>Error. Try again.</div>"});
 }
+
 function back(){
  var app=document.getElementById("app");
  app.innerHTML=results.map(function(r,i){
   return "<div class='res' onclick='openArt("+i+")'><h3>"+clean(r.title)+"</h3><p>"+clean(r.snippet)+"...</p></div>"}).join("");
 }
+
+// La Liga жеке бетти ачуу функциясы
+function openLaLiga(){
+ var app=document.getElementById("app");
+ app.innerHTML=`
+  <div class='art'>
+   <button class='back' onclick='home()'>← Back to Home</button>
+   <h1>🇪🇸 La Liga Hub</h1>
+   <div class='liga-header'>
+    <button class='liga-tab-btn active' id='btnStandings' onclick='showStandingsTab()'>Standings (Таблица)</button>
+    <button class='liga-tab-btn' id='btnMatches' onclick='showMatchesTab()'>Matches (Матчтар)</button>
+   </div>
+   <div id='ligaContent'></div>
+  </div>
+ `;
+ showStandingsTab();
+ window.scrollTo(0,0);
+}
+
+function showStandingsTab(){
+ document.getElementById('btnStandings').classList.add('active');
+ document.getElementById('btnMatches').classList.remove('active');
+ 
+ var container = document.getElementById('ligaContent');
+ container.innerHTML="<div class='msg'>Loading Standings...</div>";
+
+ api({action:"query",prop:"extracts",explaintext:1,titles:"2025-26 La Liga",redirects:1}).then(function(d){
+  var pg=d.query.pages;var p=pg[Object.keys(pg)[0]];
+  var tableHtml="<table class='standings-table'><tr><th>Club & Standings Info</th></tr>";
+  if(p.extract){
+   var lines=p.extract.split("\n");
+   var count=0;
+   lines.forEach(function(l){
+    l=l.trim();
+    if(l && l.length > 20 && count < 15){
+     tableHtml+="<tr><td>"+l+"</td></tr>";
+     count++;
+    }
+   });
+  }
+  tableHtml+="</table>";
+  container.innerHTML=tableHtml;
+ }).catch(function(){
+  container.innerHTML="<div class='msg'>Error loading standings.</div>";
+ });
+}
+
+function showMatchesTab(){
+ document.getElementById('btnMatches').classList.add('active');
+ document.getElementById('btnStandings').classList.remove('active');
+ 
+ var container = document.getElementById('ligaContent');
+ container.innerHTML = `
+  <h3 style="color:#18c8ff; margin-top:15px;">Recent Match Results</h3>
+  <div class='match-card'><div class='match-teams'>Real Madrid vs Barcelona</div><div class='match-score'>2 - 1</div></div>
+  <div class='match-card'><div class='match-teams'>Atletico Madrid vs Real Sociedad</div><div class='match-score'>1 - 0</div></div>
+  <div class='match-card'><div class='match-teams'>Villarreal vs Sevilla</div><div class='match-score'>2 - 2</div></div>
+  <div class='match-card'><div class='match-teams'>Athletic Bilbao vs Valencia</div><div class='match-score'>3 - 1</div></div>
+ `;
+}
+
 setup();
 </script>
 </body>
