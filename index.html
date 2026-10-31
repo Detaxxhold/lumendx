@@ -17,10 +17,10 @@ header p{color:#aabbd1;margin:6px 0 12px}
 .langs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .langs button,.chips button,.liga-btn{background:#0b1626;color:#fff;border:1px solid #1d3354;border-radius:20px;padding:8px 14px;font-size:14px;cursor:pointer}
 .langs button.on{background:#18c8ff;color:#06121f;font-weight:bold}
-.chips{display:flex;gap:8px;overflow:auto;padding:14px 16px}
+.chips{display:flex;gap:8px;overflow:auto;padding:14px 0}
 .chips button{white-space:nowrap;background:#101d32}
-.liga-btn{background:#18c8ff;color:#06121f;font-weight:bold}
-.chips-container{display:flex;align-items:center;padding:0 16px;overflow:auto;gap:8px}
+.liga-btn{background:#18c8ff;color:#06121f;font-weight:bold;white-space:nowrap}
+.chips-container{display:flex;align-items:center;padding:0 16px;gap:8px}
 main{padding:0 16px 20px}
 .res{background:#101d32;border:1px solid #1d3354;border-radius:12px;padding:14px;margin-bottom:12px;cursor:pointer}
 .res h3{margin:0 0 6px;color:#18c8ff}
@@ -32,26 +32,27 @@ main{padding:0 16px 20px}
 .art h2{color:#18c8ff;font-size:20px;margin:24px 0 4px}
 .art a{color:#18c8ff;font-weight:bold}
 .msg{color:#9aacc3;text-align:center;padding:30px 0}
-
-/* Профессионалдык ЛаЛига менюсу жана таблицасы */
-.liga-nav{display:flex;background:#101d32;border-radius:10px;overflow:hidden;margin:15px 0;border:1px solid #1d3354;overflow-x:auto}
-.liga-nav-btn{flex:1;background:none;border:none;color:#9aacc3;padding:12px 10px;font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap;text-align:center}
+.liga-nav{display:flex;background:#101d32;border-radius:10px;overflow:hidden;margin:15px 0;border:1px solid #1d3354}
+.liga-nav-btn{flex:1;background:none;border:none;color:#9aacc3;padding:12px 6px;font-size:14px;font-weight:bold;cursor:pointer}
 .liga-nav-btn.active{color:#fff;background:#183153;border-bottom:3px solid #18c8ff}
-
-.zone-title{font-size:12px;color:#8ab4f8;margin:15px 0 5px;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
-
-.standings-table{width:100%;border-collapse:collapse;background:#101d32;border-radius:10px;overflow:hidden;border:1px solid #1d3354;margin-bottom:15px}
-.standings-table th{background:#142438;color:#8ab4f8;font-size:12px;padding:10px 8px;text-align:center;font-weight:normal}
-.standings-table th:nth-child(2){text-align:left}
-.standings-table td{padding:10px 8px;text-align:center;font-size:13px;border-bottom:1px solid #1d3354}
-.standings-table td:nth-child(2){text-align:left;font-weight:bold;color:#fff}
-.standings-table tr:hover{background:#162a4a}
+.tw{overflow-x:auto}
+.st{width:100%;border-collapse:collapse;background:#101d32;border:1px solid #1d3354;font-size:13px}
+.st th{background:#142438;color:#8ab4f8;padding:9px 5px;text-align:center;font-weight:normal}
+.st td{padding:9px 5px;text-align:center;border-bottom:1px solid #1d3354}
+.st th:nth-child(2),.st td:nth-child(2){text-align:left;font-weight:bold;white-space:nowrap}
+.st td:first-child{border-left:4px solid transparent}
+.st tr.cl td:first-child{border-left-color:#18c8ff}
+.st tr.el td:first-child{border-left-color:#f5a623}
+.st tr.co td:first-child{border-left-color:#4caf50}
+.st tr.rel td:first-child{border-left-color:#e53935}
 .pts{font-weight:bold;color:#18c8ff}
-
-.match-card{background:#101d32;border:1px solid #1d3354;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.match-teams{font-weight:bold;font-size:14px;color:#fff}
-.match-score{background:#183153;color:#18c8ff;padding:6px 14px;border-radius:8px;font-weight:bold;font-size:15px}
-
+.legend{font-size:12px;color:#9aacc3;line-height:1.8;margin-top:10px}
+.sub{color:#8ab4f8;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin:18px 0 8px}
+.mc{background:#101d32;border:1px solid #1d3354;border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.mc .d{font-size:12px;color:#9aacc3;margin-bottom:6px}
+.mc .r{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mc .t{font-weight:bold;font-size:14px}
+.sc{background:#183153;color:#18c8ff;padding:6px 12px;border-radius:8px;font-weight:bold;white-space:nowrap}
 footer{text-align:center;padding:25px;color:#9aacc3}
 </style>
 </head>
@@ -65,41 +66,34 @@ footer{text-align:center;padding:25px;color:#9aacc3}
 </div>
 <div class="langs" id="langs"></div>
 </header>
-
 <div class="chips-container">
-<div class="chips" id="chips" style="flex:1"></div>
 <button class="liga-btn" onclick="openLaLiga()">🏆 La Liga</button>
+<div class="chips" id="chips"></div>
 </div>
-
 <main id="app"></main>
-
 <footer>© 2026 LUMENDX | Your World. Your Football.</footer>
-
 <script>
+var KEY="PUT_YOUR_KEY_HERE";
 var lang="en";
 var LANGS={en:"English",ru:"Русский",ky:"Кыргызча"};
 var SUF={en:" football",ru:" футбол",ky:" футбол"};
 var TOPICS=["Lionel Messi","Cristiano Ronaldo","Real Madrid","FC Barcelona","FIFA World Cup","UEFA Champions League","Offside","Premier League","Pelé","Maradona","Kylian Mbappé","Penalty kick","Dordoi Bishkek","Kyrgyzstan national football team"];
 var results=[];
-
 function api(p){
  var u="https://"+lang+".wikipedia.org/w/api.php?format=json&origin=*";
  for(var k in p)u+="&"+k+"="+encodeURIComponent(p[k]);
  return fetch(u).then(function(r){return r.json()});
 }
-
 function setup(){
  document.getElementById("langs").innerHTML=Object.keys(LANGS).map(function(l){
   return "<button class='"+(l==lang?"on":"")+"' onclick='setLang(\""+l+"\")'>"+LANGS[l]+"</button>"}).join("");
  document.getElementById("chips").innerHTML=TOPICS.map(function(t,i){
   return "<button onclick='quick("+i+")'>"+t+"</button>"}).join("");
 }
-
 function setLang(l){lang=l;setup();if(document.getElementById("q").value)search()}
 function quick(i){document.getElementById("q").value=TOPICS[i];search(true)}
 function home(){document.getElementById("q").value="";document.getElementById("app").innerHTML=""}
 function clean(s){return s.replace(/<[^>]+>/g,"").replace(/&quot;/g,'"').replace(/&amp;/g,"&").replace(/&#039;/g,"'")}
-
 function search(exact){
  var q=document.getElementById("q").value.trim();
  var app=document.getElementById("app");
@@ -113,7 +107,6 @@ function search(exact){
   window.scrollTo(0,0);
  }).catch(function(){app.innerHTML="<div class='msg'>No internet or error. Try again.</div>"});
 }
-
 function openArt(i){
  var title=results[i].title;
  var app=document.getElementById("app");
@@ -131,98 +124,76 @@ function openArt(i){
   app.innerHTML=s;window.scrollTo(0,0);
  }).catch(function(){app.innerHTML="<div class='msg'>Error. Try again.</div>"});
 }
-
 function back(){
- var app=document.getElementById("app");
- app.innerHTML=results.map(function(r,i){
+ document.getElementById("app").innerHTML=results.map(function(r,i){
   return "<div class='res' onclick='openArt("+i+")'><h3>"+clean(r.title)+"</h3><p>"+clean(r.snippet)+"...</p></div>"}).join("");
 }
 
+/* ===== La Liga (real data, football-data.org) ===== */
+function fd(path){
+ return fetch("https://api.football-data.org/v4/competitions/PD/"+path,{headers:{"X-Auth-Token":KEY}}).then(function(r){
+  if(r.status==429)throw new Error("Too many requests. Wait 1 minute and try again.");
+  if(r.status==403||r.status==400)throw new Error("API key problem. Check your key in the code.");
+  if(!r.ok)throw new Error("Error "+r.status);
+  return r.json()});
+}
 function openLaLiga(){
- var app=document.getElementById("app");
- app.innerHTML=`
-  <div class='art'>
-   <button class='back' onclick='home()'>← Back to Home</button>
-   <h1 style="display:flex; align-items:center; gap:8px;">🇪🇸 La Liga 26/27</h1>
-   
-   <div class='liga-nav'>
-    <button class='liga-nav-btn' id='navOverview' onclick='showOverviewTab()'>Обзор</button>
-    <button class='liga-nav-btn' id='navMatches' onclick='showMatchesTab()'>Матчи</button>
-    <button class='liga-nav-btn active' id='navStandings' onclick='showStandingsTab()'>Таблицы</button>
-    <button class='liga-nav-btn' id='navStats' onclick='showStatsTab()'>Статистика</button>
-   </div>
-   
-   <div id='ligaMainContent'></div>
-  </div>
- `;
- showStandingsTab();
- window.scrollTo(0,0);
+ document.getElementById("app").innerHTML=
+ "<div class='art'><button class='back' onclick='home()'>← Back to Home</button>"+
+ "<h1>🇪🇸 La Liga</h1>"+
+ "<div class='liga-nav'>"+
+ "<button class='liga-nav-btn' id='n1' onclick='tabTable()'>Table</button>"+
+ "<button class='liga-nav-btn' id='n2' onclick='tabMatches()'>Matches</button>"+
+ "<button class='liga-nav-btn' id='n3' onclick='tabScorers()'>Scorers</button>"+
+ "</div><div id='lc'></div></div>";
+ tabTable();window.scrollTo(0,0);
 }
-
-function setNavActive(id){
- document.querySelectorAll('.liga-nav-btn').forEach(b=>b.classList.remove('active'));
- document.getElementById(id).classList.add('active');
+function act(id){
+ ["n1","n2","n3"].forEach(function(x){document.getElementById(x).classList.toggle("active",x==id)});
+ document.getElementById("lc").innerHTML="<div class='msg'>Loading...</div>";
 }
-
-function showOverviewTab(){
- setNavActive('navOverview');
- document.getElementById('ligaMainContent').innerHTML = `
-  <h3 style="color:#18c8ff; margin-top:15px;">La Liga Overview</h3>
-  <p>Welcome to the La Liga hub on LUMENDX! Here you can check out live standings, match results, and top statistics for the Spanish championship season.</p>
- ` ;
+function fail(e){document.getElementById("lc").innerHTML="<div class='msg'>"+(e.message||"No internet or error.")+"</div>"}
+function tabTable(){
+ act("n1");
+ fd("standings").then(function(d){
+  var t=d.standings[0].table;
+  var s="<div class='sub'>Season "+d.season.startDate.slice(0,4)+"/"+d.season.endDate.slice(2,4)+" · Matchday "+d.season.currentMatchday+"</div>";
+  s+="<div class='tw'><table class='st'><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr>";
+  t.forEach(function(r){
+   var c=r.position<=4?"cl":r.position==5?"el":r.position==6?"co":r.position>=18?"rel":"";
+   var gd=r.goalDifference>0?"+"+r.goalDifference:r.goalDifference;
+   s+="<tr class='"+c+"'><td>"+r.position+"</td><td>"+(r.team.shortName||r.team.name)+"</td><td>"+r.playedGames+"</td><td>"+r.won+"</td><td>"+r.draw+"</td><td>"+r.lost+"</td><td>"+gd+"</td><td class='pts'>"+r.points+"</td></tr>"});
+  s+="</table></div><div class='legend'><span style='color:#18c8ff'>■</span> Champions League &nbsp;<span style='color:#f5a623'>■</span> Europa League &nbsp;<span style='color:#4caf50'>■</span> Conference League &nbsp;<span style='color:#e53935'>■</span> Relegation</div>";
+  document.getElementById("lc").innerHTML=s;
+ }).catch(fail);
 }
-
-function showMatchesTab(){
- setNavActive('navMatches');
- document.getElementById('ligaMainContent').innerHTML = `
-  <h3 style="color:#18c8ff; margin-top:15px;">Match Results</h3>
-  <div class='match-card'><div class='match-teams'>Atletico Madrid vs Barcelona</div><div class='match-score'>1 - 1</div></div>
-  <div class='match-card'><div class='match-teams'>Real Madrid vs Real Betis</div><div class='match-score'>2 - 0</div></div>
-  <div class='match-card'><div class='match-teams'>Sevilla vs Real Sociedad</div><div class='match-score'>1 - 2</div></div>
-  <div class='match-card'><div class='match-teams'>Villarreal vs Athletic Bilbao</div><div class='match-score'>2 - 2</div></div>
- `;
+function card(m){
+ var h=m.score.fullTime.home,a=m.score.fullTime.away;
+ var d=new Date(m.utcDate);
+ var ds=d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+ var sc=(h===null||a===null)?"vs":h+" - "+a;
+ return "<div class='mc'><div class='d'>Matchday "+m.matchday+" · "+ds+"</div><div class='r'><div class='t'>"+(m.homeTeam.shortName||m.homeTeam.name)+"<br>"+(m.awayTeam.shortName||m.awayTeam.name)+"</div><div class='sc'>"+sc+"</div></div></div>";
 }
-
-function showStandingsTab(){
- setNavActive('navStandings');
- document.getElementById('ligaMainContent').innerHTML = `
-  <div class='zone-title'>Лига чемпионов</div>
-  <table class='standings-table'>
-   <tr><th>#</th><th>Команда</th><th>P</th><th>Diff</th><th>PTS</th></tr>
-   <tr><td>1</td><td>Atletico Madrid</td><td>11</td><td>+13</td><td class='pts'>28</td></tr>
-   <tr><td>2</td><td>FC Barcelona</td><td>10</td><td>+29</td><td class='pts'>27</td></tr>
-   <tr><td>3</td><td>Real Madrid</td><td>10</td><td>+15</td><td class='pts'>24</td></tr>
-   <tr><td>4</td><td>Real Betis</td><td>10</td><td>+2</td><td class='pts'>20</td></tr>
-  </table>
-
-  <div class='zone-title'>УЕФА Лига Европы</div>
-  <table class='standings-table'>
-   <tr><th>#</th><th>Команда</th><th>P</th><th>Diff</th><th>PTS</th></tr>
-   <tr><td>5</td><td>Real Sociedad</td><td>10</td><td>+1</td><td class='pts'>19</td></tr>
-  </table>
-
-  <div class='zone-title'>Лига конференций УЕФА</div>
-  <table class='standings-table'>
-   <tr><th>#</th><th>Команда</th><th>P</th><th>Diff</th><th>PTS</th></tr>
-   <tr><td>6</td><td>Sevilla</td><td>10</td><td>0</td><td class='pts'>17</td></tr>
-   <tr><td>7</td><td>Alaves</td><td>10</td><td>+3</td><td class='pts'>12</td></tr>
-   <tr><td>8</td><td>Athletic Bilbao</td><td>9</td><td>+3</td><td class='pts'>12</td></tr>
-   <tr><td>9</td><td>Celta</td><td>10</td><td>+3</td><td class='pts'>12</td></tr>
-   <tr><td>10</td><td>Villarreal</td><td>11</td><td>0</td><td class='pts'>12</td></tr>
-  </table>
- `;
+function tabMatches(){
+ act("n2");
+ fd("matches").then(function(d){
+  var all=d.matches;
+  var fin=all.filter(function(m){return m.status=="FINISHED"}).slice(-10).reverse();
+  var up=all.filter(function(m){return m.status!="FINISHED"&&m.status!="CANCELLED"}).slice(0,10);
+  var s="<div class='sub'>Upcoming</div>"+(up.map(card).join("")||"<div class='msg'>No matches.</div>");
+  s+="<div class='sub'>Latest results</div>"+(fin.map(card).join("")||"<div class='msg'>No results yet.</div>");
+  document.getElementById("lc").innerHTML=s;
+ }).catch(fail);
 }
-
-function showStatsTab(){
- setNavActive('navStats');
- document.getElementById('ligaMainContent').innerHTML = `
-  <h3 style="color:#18c8ff; margin-top:15px;">Top Scorers & Statistics</h3>
-  <div class='res'><h3>1. Robert Lewandowski (Barcelona)</h3><p>Goals: 12 | Assists: 3</p></div>
-  <div class='res'><h3>2. Kylian Mbappé (Real Madrid)</h3><p>Goals: 11 | Assists: 2</p></div>
-  <div class='res'><h3>3. Antoine Griezmann (Atletico Madrid)</h3><p>Goals: 9 | Assists: 5</p></div>
- ` ;
+function tabScorers(){
+ act("n3");
+ fd("scorers?limit=20").then(function(d){
+  var s="<div class='sub'>Top scorers</div>";
+  d.scorers.forEach(function(x,i){
+   s+="<div class='res' style='cursor:default'><h3>"+(i+1)+". "+x.player.name+" ("+(x.team.shortName||x.team.name)+")</h3><p>Goals: "+x.goals+" | Assists: "+(x.assists||0)+" | Matches: "+x.playedMatches+"</p></div>"});
+  document.getElementById("lc").innerHTML=s;
+ }).catch(fail);
 }
-
 setup();
 </script>
 </body>
