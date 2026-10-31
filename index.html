@@ -33,19 +33,24 @@ main{padding:0 16px 20px}
 .art a{color:#18c8ff;font-weight:bold}
 .msg{color:#9aacc3;text-align:center;padding:30px 0}
 
-/* La Liga бет стилдери */
-.liga-header{display:flex;gap:10px;margin:15px 0}
-.liga-tab-btn{flex:1;background:#101d32;color:#fff;border:1px solid #1d3354;padding:10px;border-radius:8px;font-weight:bold;cursor:pointer}
-.liga-tab-btn.active{background:#18c8ff;color:#06121f;border-color:#18c8ff}
+/* Профессионалдык ЛаЛига менюсу жана таблицасы */
+.liga-nav{display:flex;background:#101d32;border-radius:10px;overflow:hidden;margin:15px 0;border:1px solid #1d3354;overflow-x:auto}
+.liga-nav-btn{flex:1;background:none;border:none;color:#9aacc3;padding:12px 10px;font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap;text-align:center}
+.liga-nav-btn.active{color:#fff;background:#183153;border-bottom:3px solid #18c8ff}
 
-.standings-table{width:100%;border-collapse:collapse;background:#101d32;border-radius:12px;overflow:hidden;border:1px solid #1d3354;margin-top:10px}
-.standings-table th,.standings-table td{padding:12px;text-align:left;font-size:14px;border-bottom:1px solid #1d3354}
-.standings-table th{background:#183153;color:#18c8ff}
+.zone-title{font-size:12px;color:#8ab4f8;margin:15px 0 5px;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
+
+.standings-table{width:100%;border-collapse:collapse;background:#101d32;border-radius:10px;overflow:hidden;border:1px solid #1d3354;margin-bottom:15px}
+.standings-table th{background:#142438;color:#8ab4f8;font-size:12px;padding:10px 8px;text-align:center;font-weight:normal}
+.standings-table th:nth-child(2){text-align:left}
+.standings-table td{padding:10px 8px;text-align:center;font-size:13px;border-bottom:1px solid #1d3354}
+.standings-table td:nth-child(2){text-align:left;font-weight:bold;color:#fff}
 .standings-table tr:hover{background:#162a4a}
+.pts{font-weight:bold;color:#18c8ff}
 
 .match-card{background:#101d32;border:1px solid #1d3354;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.match-teams{font-weight:bold;font-size:15px;color:#fff}
-.match-score{background:#183153;color:#18c8ff;padding:6px 12px;border-radius:8px;font-weight:bold}
+.match-teams{font-weight:bold;font-size:14px;color:#fff}
+.match-score{background:#183153;color:#18c8ff;padding:6px 14px;border-radius:8px;font-weight:bold;font-size:15px}
 
 footer{text-align:center;padding:25px;color:#9aacc3}
 </style>
@@ -133,64 +138,89 @@ function back(){
   return "<div class='res' onclick='openArt("+i+")'><h3>"+clean(r.title)+"</h3><p>"+clean(r.snippet)+"...</p></div>"}).join("");
 }
 
-// La Liga жеке бетти ачуу функциясы
 function openLaLiga(){
  var app=document.getElementById("app");
  app.innerHTML=`
   <div class='art'>
    <button class='back' onclick='home()'>← Back to Home</button>
-   <h1>🇪🇸 La Liga Hub</h1>
-   <div class='liga-header'>
-    <button class='liga-tab-btn active' id='btnStandings' onclick='showStandingsTab()'>Standings (Таблица)</button>
-    <button class='liga-tab-btn' id='btnMatches' onclick='showMatchesTab()'>Matches (Матчтар)</button>
+   <h1 style="display:flex; align-items:center; gap:8px;">🇪🇸 La Liga 26/27</h1>
+   
+   <div class='liga-nav'>
+    <button class='liga-nav-btn' id='navOverview' onclick='showOverviewTab()'>Обзор</button>
+    <button class='liga-nav-btn' id='navMatches' onclick='showMatchesTab()'>Матчи</button>
+    <button class='liga-nav-btn active' id='navStandings' onclick='showStandingsTab()'>Таблицы</button>
+    <button class='liga-nav-btn' id='navStats' onclick='showStatsTab()'>Статистика</button>
    </div>
-   <div id='ligaContent'></div>
+   
+   <div id='ligaMainContent'></div>
   </div>
  `;
  showStandingsTab();
  window.scrollTo(0,0);
 }
 
-function showStandingsTab(){
- document.getElementById('btnStandings').classList.add('active');
- document.getElementById('btnMatches').classList.remove('active');
- 
- var container = document.getElementById('ligaContent');
- container.innerHTML="<div class='msg'>Loading Standings...</div>";
+function setNavActive(id){
+ document.querySelectorAll('.liga-nav-btn').forEach(b=>b.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+}
 
- api({action:"query",prop:"extracts",explaintext:1,titles:"2025-26 La Liga",redirects:1}).then(function(d){
-  var pg=d.query.pages;var p=pg[Object.keys(pg)[0]];
-  var tableHtml="<table class='standings-table'><tr><th>Club & Standings Info</th></tr>";
-  if(p.extract){
-   var lines=p.extract.split("\n");
-   var count=0;
-   lines.forEach(function(l){
-    l=l.trim();
-    if(l && l.length > 20 && count < 15){
-     tableHtml+="<tr><td>"+l+"</td></tr>";
-     count++;
-    }
-   });
-  }
-  tableHtml+="</table>";
-  container.innerHTML=tableHtml;
- }).catch(function(){
-  container.innerHTML="<div class='msg'>Error loading standings.</div>";
- });
+function showOverviewTab(){
+ setNavActive('navOverview');
+ document.getElementById('ligaMainContent').innerHTML = `
+  <h3 style="color:#18c8ff; margin-top:15px;">La Liga Overview</h3>
+  <p>Welcome to the La Liga hub on LUMENDX! Here you can check out live standings, match results, and top statistics for the Spanish championship season.</p>
+ ` ;
 }
 
 function showMatchesTab(){
- document.getElementById('btnMatches').classList.add('active');
- document.getElementById('btnStandings').classList.remove('active');
- 
- var container = document.getElementById('ligaContent');
- container.innerHTML = `
-  <h3 style="color:#18c8ff; margin-top:15px;">Recent Match Results</h3>
-  <div class='match-card'><div class='match-teams'>Real Madrid vs Barcelona</div><div class='match-score'>2 - 1</div></div>
-  <div class='match-card'><div class='match-teams'>Atletico Madrid vs Real Sociedad</div><div class='match-score'>1 - 0</div></div>
-  <div class='match-card'><div class='match-teams'>Villarreal vs Sevilla</div><div class='match-score'>2 - 2</div></div>
-  <div class='match-card'><div class='match-teams'>Athletic Bilbao vs Valencia</div><div class='match-score'>3 - 1</div></div>
+ setNavActive('navMatches');
+ document.getElementById('ligaMainContent').innerHTML = `
+  <h3 style="color:#18c8ff; margin-top:15px;">Match Results</h3>
+  <div class='match-card'><div class='match-teams'>Atletico Madrid vs Barcelona</div><div class='match-score'>1 - 1</div></div>
+  <div class='match-card'><div class='match-teams'>Real Madrid vs Real Betis</div><div class='match-score'>2 - 0</div></div>
+  <div class='match-card'><div class='match-teams'>Sevilla vs Real Sociedad</div><div class='match-score'>1 - 2</div></div>
+  <div class='match-card'><div class='match-teams'>Villarreal vs Athletic Bilbao</div><div class='match-score'>2 - 2</div></div>
  `;
+}
+
+function showStandingsTab(){
+ setNavActive('navStandings');
+ document.getElementById('ligaMainContent').innerHTML = `
+  <div class='zone-title'>Лига чемпионов</div>
+  <table class='standings-table'>
+   <tr><th>#</th><th>Команда</th><th>P</th><th>Diff</th><th>PTS</th></tr>
+   <tr><td>1</td><td>Atletico Madrid</td><td>11</td><td>+13</td><td class='pts'>28</td></tr>
+   <tr><td>2</td><td>FC Barcelona</td><td>10</td><td>+29</td><td class='pts'>27</td></tr>
+   <tr><td>3</td><td>Real Madrid</td><td>10</td><td>+15</td><td class='pts'>24</td></tr>
+   <tr><td>4</td><td>Real Betis</td><td>10</td><td>+2</td><td class='pts'>20</td></tr>
+  </table>
+
+  <div class='zone-title'>УЕФА Лига Европы</div>
+  <table class='standings-table'>
+   <tr><th>#</th><th>Команда</th><th>P</th><th>Diff</th><th>PTS</th></tr>
+   <tr><td>5</td><td>Real Sociedad</td><td>10</td><td>+1</td><td class='pts'>19</td></tr>
+  </table>
+
+  <div class='zone-title'>Лига конференций УЕФА</div>
+  <table class='standings-table'>
+   <tr><th>#</th><th>Команда</th><th>P</th><th>Diff</th><th>PTS</th></tr>
+   <tr><td>6</td><td>Sevilla</td><td>10</td><td>0</td><td class='pts'>17</td></tr>
+   <tr><td>7</td><td>Alaves</td><td>10</td><td>+3</td><td class='pts'>12</td></tr>
+   <tr><td>8</td><td>Athletic Bilbao</td><td>9</td><td>+3</td><td class='pts'>12</td></tr>
+   <tr><td>9</td><td>Celta</td><td>10</td><td>+3</td><td class='pts'>12</td></tr>
+   <tr><td>10</td><td>Villarreal</td><td>11</td><td>0</td><td class='pts'>12</td></tr>
+  </table>
+ `;
+}
+
+function showStatsTab(){
+ setNavActive('navStats');
+ document.getElementById('ligaMainContent').innerHTML = `
+  <h3 style="color:#18c8ff; margin-top:15px;">Top Scorers & Statistics</h3>
+  <div class='res'><h3>1. Robert Lewandowski (Barcelona)</h3><p>Goals: 12 | Assists: 3</p></div>
+  <div class='res'><h3>2. Kylian Mbappé (Real Madrid)</h3><p>Goals: 11 | Assists: 2</p></div>
+  <div class='res'><h3>3. Antoine Griezmann (Atletico Madrid)</h3><p>Goals: 9 | Assists: 5</p></div>
+ ` ;
 }
 
 setup();
