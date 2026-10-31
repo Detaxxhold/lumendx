@@ -73,7 +73,6 @@ footer{text-align:center;padding:25px;color:#9aacc3}
 <main id="app"></main>
 <footer>© 2026 LUMENDX | Your World. Your Football.</footer>
 <script>
-var KEY="8b315475e0174157ad607e04c8ffdc4b";
 var lang="en";
 var LANGS={en:"English",ru:"Русский",ky:"Кыргызча"};
 var SUF={en:" football",ru:" футбол",ky:" футбол"};
@@ -129,12 +128,10 @@ function back(){
   return "<div class='res' onclick='openArt("+i+")'><h3>"+clean(r.title)+"</h3><p>"+clean(r.snippet)+"...</p></div>"}).join("");
 }
 
-/* ===== La Liga (real data, football-data.org) ===== */
-function fd(path){
- return fetch("https://api.football-data.org/v4/competitions/PD/"+path,{headers:{"X-Auth-Token":KEY}}).then(function(r){
-  if(r.status==429)throw new Error("Too many requests. Wait 1 minute and try again.");
-  if(r.status==403||r.status==400)throw new Error("API key problem. Check your key in the code.");
-  if(!r.ok)throw new Error("Error "+r.status);
+/* ===== La Liga (data files updated by GitHub every hour) ===== */
+function fd(name){
+ return fetch("data/"+name+".json?t="+Date.now()).then(function(r){
+  if(!r.ok)throw new Error("Data is not ready yet. Try again later.");
   return r.json()});
 }
 function openLaLiga(){
@@ -152,7 +149,7 @@ function act(id){
  ["n1","n2","n3"].forEach(function(x){document.getElementById(x).classList.toggle("active",x==id)});
  document.getElementById("lc").innerHTML="<div class='msg'>Loading...</div>";
 }
-function fail(e){document.getElementById("lc").innerHTML="<div class='msg'>"+(e.message||"No internet or error.")+"</div>"}
+function fail(e){document.getElementById("lc").innerHTML="<div class='msg'>"+(e.message||"Error.")+"</div>"}
 function tabTable(){
  act("n1");
  fd("standings").then(function(d){
@@ -187,7 +184,7 @@ function tabMatches(){
 }
 function tabScorers(){
  act("n3");
- fd("scorers?limit=20").then(function(d){
+ fd("scorers").then(function(d){
   var s="<div class='sub'>Top scorers</div>";
   d.scorers.forEach(function(x,i){
    s+="<div class='res' style='cursor:default'><h3>"+(i+1)+". "+x.player.name+" ("+(x.team.shortName||x.team.name)+")</h3><p>Goals: "+x.goals+" | Assists: "+(x.assists||0)+" | Matches: "+x.playedMatches+"</p></div>"});
