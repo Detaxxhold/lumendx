@@ -54,9 +54,6 @@ main{padding:0 16px 20px}
 .mc .r{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .mc .t{font-weight:bold;font-size:14px;line-height:2}
 .sc{background:#183153;color:#18c8ff;padding:6px 12px;border-radius:8px;font-weight:bold;white-space:nowrap}
-/* Бомбардирлер үчүн кошумча стилдер */
-.player-row{display:flex;align-items:center;gap:14px}
-.player-avatar{width:42px;height:42px;border-radius:50%;background:#183153;border:1px solid #18c8ff;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#18c8ff;font-size:15px;flex-shrink:0}
 footer{text-align:center;padding:25px;color:#9aacc3}
 </style>
 </head>
@@ -100,4 +97,118 @@ function setup(){
 }
 function setupLeagues(){
  document.getElementById("leagues").innerHTML=Object.keys(LG).map(function(k){
-  return "<button class='liga-btn"+(k==cur?" sel":"")+"' onclick='openLeague(\""+k+"\")'>"+LG[k].f+" "+LG[k].n+"</button>"}).join
+  return "<button class='liga-btn"+(k==cur?" sel":"")+"' onclick='openLeague(\""+k+"\")'>"+LG[k].f+" "+LG[k].n+"</button>"}).join("");
+}
+function setLang(l){lang=l;setup();if(document.getElementById("q").value)search()}
+function home(){cur="";setupLeagues();document.getElementById("q").value="";document.getElementById("app").innerHTML=""}
+function clean(s){return s.replace(/<[^>]+>/g,"").replace(/&quot;/g,'"').replace(/&amp;/g,"&").replace(/&#039;/g,"'")}
+function search(exact){
+ var q=document.getElementById("q").value.trim();
+ var app=document.getElementById("app");
+ if(!q)return;
+ cur="";setupLeagues();
+ app.innerHTML="<div class='msg'>Searching...</div>";
+ api({action:"query",list:"search",srsearch:exact?q:q+SUF[lang],srlimit:20,srprop:"snippet"}).then(function(d){
+  results=d.query.search;
+  if(!results.length){app.innerHTML="<div class='msg'>Nothing found. Try another word or language.</div>";return}
+  app.innerHTML=results.map(function(r,i){
+   return "<div class='res' onclick='openArt("+i+")'><h3>"+clean(r.title)+"</h3><p>"+clean(r.snippet)+"...</p></div>"}).join("");
+  window.scrollTo(0,0);
+ }).catch(function(){app.innerHTML="<div class='msg'>No internet or error. Try again.</div>"});
+}
+function openArt(i){
+ var title=results[i].title;
+ var app=document.getElementById("app");
+ app.innerHTML="<div class='msg'>Loading...</div>";
+ api({action:"query",prop:"extracts|pageimages",explaintext:1,exsectionformat:"plain",piprop:"thumbnail",pithumbsize:700,titles:title,redirects:1}).then(function(d){
+  var pg=d.query.pages;var p=pg[Object.keys(pg)[0]];
+  var s="<div class='art'><button class='back' onclick='back()'>← Back</button>";
+  if(p.thumbnail)s+="<img src='"+p.thumbnail.source+"'>";
+  s+="<h1>"+p.title+"</h1>";
+  (p.extract||"No text.").split("\n").forEach(function(l){
+   l=l.trim();if(!l)return;
+   if(l.length<60&&!/[.!?]$/.test(l))s+="<h2>"+l.replace(/=/g,"")+"</h2>";
+   else s+="<p>"+l+"</p>"});
+  s+="<p><a target='_blank' href='https://"+lang+".wikipedia.org/wiki/"+encodeURIComponent(p.title.replace(/ /g,"_"))+"'>Open on Wikipedia →</a></p></div>";
+  app.innerHTML=s;window.scrollTo(0,0);
+ }).catch(function(){app.innerHTML="<div class='msg'>Error. Try again.</div>"});
+}
+function back(){
+ document.getElementById("app").innerHTML=results.map(function(r,i){
+  return "<div class='res' onclick='openArt("+i+")'><h3>"+clean(r.title)+"</h3><p>"+clean(r.snippet)+"...</p></div>"}).join("");
+}
+
+/* ===== Leagues (data files updated by GitHub every hour) ===== */
+function fd(name){
+ return fetch("data/"+cur+"_"+name+".json?t="+Date.now()).then(function(r){
+  if(!r.ok)throw new Error("Data is not ready yet. Try again later.");
+  return r.json()});
+}
+function cr(t){
+ return (t&&t.crest)?"<img class='cr' src='"+t.crest+"' alt='' loading='lazy' onerror=\"this.style.display='none'\">":"";
+}
+function nm(t){return t.shortName||t.name||"?"}
+function openLeague(code){
+ cur=code;setupLeagues();
+ document.getElementById("app").innerHTML=
+ "<div class='art'><button class='back' onclick='home()'>← Back to Home</button>"+
+ "<h1>"+LG[code].f+" "+LG[code].n+"</h1>"+
+ "<div class='liga-nav'>"+
+ "<button class='liga-nav-btn' id='n1' onclick='tabTable()'>Table</button>"+
+ "<button class='liga-nav-btn' id='n2' onclick='tabMatches()'>Matches</button>"+
+ "<button class='liga-nav-btn' id='n3' onclick='tabScorers()'>Scorers</button>"+
+ "</div><div id='lc'></div></div>";
+ tabTable();window.scrollTo(0,0);
+}
+function act(id){
+ ["n1","n2","n3"].forEach(function(x){document.getElementById(x).classList.toggle("active",x==id)});
+ document.getElementById("lc").innerHTML="<div class='msg'>Loading...</div>";
+}
+function fail(e){document.getElementById("lc").innerHTML="<div class='msg'>"+(e.message||"Error.")+"</div>"}
+function tabTable(){
+ act("n1");
+ var z=LG[cur].z;
+ fd("standings").then(function(d){
+  var t=d.standings[0].table;
+  var s="<div class='sub'>Season "+d.season.startDate.slice(0,4)+"/"+d.season.endDate.slice(2,4)+(d.season.currentMatchday?" · Matchday "+d.season.currentMatchday:"")+"</div>";
+  s+="<div class='tw'><table class='st'><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr>";
+  t.forEach(function(r){
+   var p=r.position;
+   var c=p>=z[3]?"rel":p<=z[0]?"cl":p<=z[1]?"el":p<=z[2]?"co":"";
+   var gd=r.goalDifference>0?"+"+r.goalDifference:r.goalDifference;
+   s+="<tr class='"+c+"'><td>"+p+"</td><td>"+cr(r.team)+nm(r.team)+"</td><td>"+r.playedGames+"</td><td>"+r.won+"</td><td>"+r.draw+"</td><td>"+r.lost+"</td><td>"+gd+"</td><td class='pts'>"+r.points+"</td></tr>"});
+  s+="</table></div><div class='legend'>"+LG[cur].l+"</div>";
+  document.getElementById("lc").innerHTML=s;
+ }).catch(fail);
+}
+function card(m){
+ var h=m.score.fullTime.home,a=m.score.fullTime.away;
+ var d=new Date(m.utcDate);
+ var ds=d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+ var sc=(h===null||a===null)?"vs":h+" - "+a;
+ return "<div class='mc'><div class='d'>Matchday "+m.matchday+" · "+ds+"</div><div class='r'><div class='t'>"+cr(m.homeTeam)+nm(m.homeTeam)+"<br>"+cr(m.awayTeam)+nm(m.awayTeam)+"</div><div class='sc'>"+sc+"</div></div></div>";
+}
+function tabMatches(){
+ act("n2");
+ fd("matches").then(function(d){
+  var all=d.matches;
+  var fin=all.filter(function(m){return m.status=="FINISHED"}).slice(-10).reverse();
+  var up=all.filter(function(m){return m.status!="FINISHED"&&m.status!="CANCELLED"&&m.status!="POSTPONED"}).slice(0,10);
+  var s="<div class='sub'>Upcoming</div>"+(up.map(card).join("")||"<div class='msg'>No matches.</div>");
+  s+="<div class='sub'>Latest results</div>"+(fin.map(card).join("")||"<div class='msg'>No results yet.</div>");
+  document.getElementById("lc").innerHTML=s;
+ }).catch(fail);
+}
+function tabScorers(){
+ act("n3");
+ fd("scorers").then(function(d){
+  var s="<div class='sub'>Top scorers</div>";
+  d.scorers.forEach(function(x,i){
+   s+="<div class='res' style='cursor:default'><h3>"+(i+1)+". "+x.player.name+"</h3><p>"+cr(x.team)+nm(x.team)+"<br>Goals: "+x.goals+" | Assists: "+(x.assists||0)+" | Matches: "+x.playedMatches+"</p></div>"});
+  document.getElementById("lc").innerHTML=s;
+ }).catch(fail);
+}
+setup();
+</script>
+</body>
+</html>
