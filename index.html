@@ -329,6 +329,12 @@ function openMore(){
  window.scrollTo(0,0);
 }
 function kg(i){lang="en";setup();document.getElementById("q").value=KG[i];search(true)}
+ function openMore(){
+ cur="MORE";setupLeagues();
+ var s="<div class='art'><button class='back' onclick='home()'>← Back to Home</button><h1>🌍 More</h1><div class='sub'>Other leagues</div><div style='display:flex;flex-wrap:wrap;gap:8px'>"+OT.map(function(k){return "<button class='liga-btn' onclick='openLeague(\""+k+"\")'>"+LG[k].f+" "+LG[k].n+"</button>"}).join("")+"</div></div>";
+ document.getElementById("app").innerHTML=s;
+ window.scrollTo(0,0);
+  }
 setupLeagues();
 setup();
 </script>
