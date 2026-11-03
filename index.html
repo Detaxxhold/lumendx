@@ -295,5 +295,46 @@ function showMD(){
 function setMD(v){MD=v;showMD()}
 function stepMD(n){var i=DS.indexOf(MD)+n;if(i>=0&&i<DS.length){MD=DS[i];showMD()}}
 </script>
+ function tabTable(){
+ act("n1");
+ var z=LG[cur].z;
+ fd("standings").then(function(d){
+  var t=d.standings[0].table;
+  var s="<div class='sub'>Season "+d.season.startDate.slice(0,4)+"/"+d.season.endDate.slice(2,4)+(d.season.currentMatchday?" · Matchday "+d.season.currentMatchday:"")+"</div>";
+  s+="<div class='tw'><table class='st'><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr>";
+  t.forEach(function(r){
+   var p=r.position;
+   var c=p>=z[3]?"rel":p<=z[0]?"cl":p<=z[1]?"el":p<=z[2]?"co":"";
+   var gd=r.goalDifference>0?"+"+r.goalDifference:r.goalDifference;
+   s+="<tr class='"+c+"'><td>"+p+"</td><td style='cursor:pointer' onclick='openTeam("+r.team.id+")'>"+cr(r.team)+nm(r.team)+"</td><td>"+r.playedGames+"</td><td>"+r.won+"</td><td>"+r.draw+"</td><td>"+r.lost+"</td><td>"+gd+"</td><td class='pts'>"+r.points+"</td></tr>"});
+  s+="</table></div><div class='legend'>"+LG[cur].l+"<br>Tap a team name to see its matches.</div>";
+  document.getElementById("lc").innerHTML=s;
+ }).catch(fail);
+}
+function openTeam(id){
+ act("n1");
+ fd("matches").then(function(d){
+  var ms=d.matches.filter(function(m){return m.homeTeam.id==id||m.awayTeam.id==id}).sort(function(a,b){return a.utcDate<b.utcDate?-1:1});
+  if(!ms.length){document.getElementById("lc").innerHTML="<button class='back' onclick='tabTable()'>← Back to table</button><div class='msg'>No matches found.</div>";return}
+  var tm=ms[0].homeTeam.id==id?ms[0].homeTeam:ms[0].awayTeam;
+  var fin=ms.filter(function(m){return m.status=="FINISHED"});
+  var up=ms.filter(function(m){return m.status!="FINISHED"&&m.status!="CANCELLED"&&m.status!="POSTPONED"});
+  var w=0,dr=0,l=0,gf=0,ga=0,form=[];
+  fin.forEach(function(m){
+   var home=m.homeTeam.id==id;
+   var a=home?m.score.fullTime.home:m.score.fullTime.away;
+   var b=home?m.score.fullTime.away:m.score.fullTime.home;
+   if(a===null||b===null)return;
+   gf+=a;ga+=b;
+   if(a>b){w++;form.push("W")}else if(a==b){dr++;form.push("D")}else{l++;form.push("L")}
+  });
+  var fc={W:"#4caf50",D:"#f5a623",L:"#e53935"};
+  var f5=form.slice(-5).map(function(x){return "<span style='display:inline-block;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;background:"+fc[x]+";color:#fff;font-weight:bold;font-size:13px;margin-right:6px'>"+x+"</span>"}).join("");
+  var x="<button class='back' onclick='tabTable()'>← Back to table</button>";
+  x+="<div style='text-align:center;margin:6px 0 16px'><img src='"+(tm.crest||"")+"' style='width:72px;height:72px;object-fit:contain' onerror=\"this.style.display='none'\"><h2 style='margin:8px 0 0;color:#fff'>"+(tm.name||nm(tm))+"</h2></div>";
+  x+="<div style='display:flex;justify-content:space-around;text-align:center;background:#101d32;border:1px solid #1d3354;border-radius:12px;padding:14px 6px;margin-bottom:12px'>";
+  x+="<div><b style='font-size:20px;color:#4caf50'>"+w+"</b><br><span style='color:#9aacc3;font-size:12px'>Wins</span></div>";
+  x+="<div><b style='font-size:20px;color:#f5a623'>"+dr+"</b><br><span style='color:#9aacc3;font-size:12px'>Draws</span></div>";
+  x+="<div><b style='font-size:20px;color:#e53935'>"+l+"</b><br><span style='color:#9aacc3;font-size:12px'>Loss
 </body>
 </html>
