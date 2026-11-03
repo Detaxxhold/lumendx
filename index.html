@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LUMENDX | Football World</title>
- <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b1626">
 <script>if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js")</script>
 <style>
@@ -138,14 +138,16 @@ function back(){
   return "<div class='res' onclick='openArt("+i+")'><h3>"+clean(r.title)+"</h3><p>"+clean(r.snippet)+"...</p></div>"}).join("");
 }
 
-/* ===== Leagues (data files updated by GitHub every hour) ===== */
+/* ===== Leagues ===== */
 function fd(name){
  return fetch("data/"+cur+"_"+name+".json?t="+Date.now()).then(function(r){
   if(!r.ok)throw new Error("Data is not ready yet. Try again later.");
   return r.json()});
 }
 function cr(t){
- return (t&&t.crest)?"<img class='cr' src='"+t.crest+"' alt='' loading='lazy' onerror=\"this.style.display='none'\">":"";
+ if(!t||!t.crest)return "";
+ var u=t.crest,p=u.replace(/\.svg$/,".png");
+ return "<img class='cr' src='"+p+"' alt='' loading='lazy' onerror=\"if(this.src!=='"+u+"'){this.src='"+u+"'}else{this.remove()}\">";
 }
 function nm(t){return t.shortName||t.name||"?"}
 function openLeague(code){
@@ -165,6 +167,8 @@ function act(id){
  document.getElementById("lc").innerHTML="<div class='msg'>Loading...</div>";
 }
 function fail(e){document.getElementById("lc").innerHTML="<div class='msg'>"+(e.message||"Error.")+"</div>"}
+
+/* ----- Table ----- */
 function tabTable(){
  act("n1");
  var z=LG[cur].z;
@@ -176,62 +180,14 @@ function tabTable(){
    var p=r.position;
    var c=p>=z[3]?"rel":p<=z[0]?"cl":p<=z[1]?"el":p<=z[2]?"co":"";
    var gd=r.goalDifference>0?"+"+r.goalDifference:r.goalDifference;
-   s+="<tr class='"+c+"'><td>"+p+"</td><td>"+cr(r.team)+nm(r.team)+"</td><td>"+r.playedGames+"</td><td>"+r.won+"</td><td>"+r.draw+"</td><td>"+r.lost+"</td><td>"+gd+"</td><td class='pts'>"+r.points+"</td></tr>"});
-  s+="</table></div><div class='legend'>"+LG[cur].l+"</div>";
+   s+="<tr class='"+c+"'><td>"+p+"</td><td style='cursor:pointer' onclick='openTeam("+r.team.id+")'>"+cr(r.team)+nm(r.team)+"</td><td>"+r.playedGames+"</td><td>"+r.won+"</td><td>"+r.draw+"</td><td>"+r.lost+"</td><td>"+gd+"</td><td class='pts'>"+r.points+"</td></tr>"});
+  s+="</table></div><div class='legend'>"+LG[cur].l+"<br>Tap a team name to see its matches.</div>";
   document.getElementById("lc").innerHTML=s;
  }).catch(fail);
 }
-function card(m){
- var h=m.score.fullTime.home,a=m.score.fullTime.away;
- var d=new Date(m.utcDate);
- var ds=d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
- var sc=(h===null||a===null)?"vs":h+" - "+a;
- return "<div class='mc'><div class='d'>Matchday "+m.matchday+" · "+ds+"</div><div class='r'><div class='t'>"+cr(m.homeTeam)+nm(m.homeTeam)+"<br>"+cr(m.awayTeam)+nm(m.awayTeam)+"</div><div class='sc'>"+sc+"</div></div></div>";
-}
-function tabMatches(){
- act("n2");
- fd("matches").then(function(d){
-  var all=d.matches;
-  var fin=all.filter(function(m){return m.status=="FINISHED"}).slice(-10).reverse();
-  var up=all.filter(function(m){return m.status!="FINISHED"&&m.status!="CANCELLED"&&m.status!="POSTPONED"}).slice(0,10);
-  var s="<div class='sub'>Upcoming</div>"+(up.map(card).join("")||"<div class='msg'>No matches.</div>");
-  s+="<div class='sub'>Latest results</div>"+(fin.map(card).join("")||"<div class='msg'>No results yet.</div>");
-  document.getElementById("lc").innerHTML=s;
- }).catch(fail);
-}
-function tabScorers(){
- act("n3");
- fd("scorers").then(function(d){
-  var s="<div class='sub'>Top scorers</div>";
-  d.scorers.forEach(function(x,i){
-   s+="<div class='res' style='cursor:default'><h3>"+(i+1)+". "+x.player.name+"</h3><p>"+cr(x.team)+nm(x.team)+"<br>Goals: "+x.goals+" | Assists: "+(x.assists||0)+" | Matches: "+x.playedMatches+"</p></div>"});
-  document.getElementById("lc").innerHTML=s;
- }).catch(fail);
-}
-setup();
- function pimg(name){
- return fetch("https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&generator=search&gsrlimit=1&gsrsearch="+encodeURIComponent(name+" footballer")+"&prop=pageimages&piprop=thumbnail&pithumbsize=120").then(function(r){return r.json()}).then(function(d){
-  var p=d.query&&d.query.pages;if(!p)return "";
-  var k=Object.keys(p)[0];
-  return p[k].thumbnail?p[k].thumbnail.source:"";
- }).catch(function(){return ""});
-}
-function tabScorers(){
- act("n3");
- fd("scorers").then(function(d){
-  var s="<div class='sub'>Top scorers</div>";
-  d.scorers.forEach(function(x,i){
-   s+="<div class='res' style='cursor:default;display:flex;gap:12px;align-items:center'><img id='ph"+i+"' alt='' style='width:64px;height:64px;border-radius:50%;object-fit:cover;background:#183153;flex:none'><div><h3>"+(i+1)+". "+x.player.name+"</h3><p>"+cr(x.team)+nm(x.team)+"<br>Goals: "+x.goals+" | Assists: "+(x.assists||0)+" | Matches: "+x.playedMatches+"</p></div></div>"});
-  document.getElementById("lc").innerHTML=s;
-  d.scorers.forEach(function(x,i){
-   pimg(x.player.name).then(function(src){
-    var e=document.getElementById("ph"+i);
-    if(e&&src)e.src=src;
-   });
-  });
- }).catch(fail);
-}
- var MM={};
+
+/* ----- Matches ----- */
+var MM={};
 function card(m){
  MM[m.id]=m;
  var h=m.score.fullTime.home,a=m.score.fullTime.away;
@@ -270,7 +226,7 @@ function openMatch(id){
  document.getElementById("lc").innerHTML=x;
  window.scrollTo(0,0);
 }
- var MD=null,MDL="",DS=[],ALLM=[];
+var MD=null,MDL="",DS=[],ALLM=[];
 function tabMatches(){
  act("n2");
  fd("matches").then(function(d){
@@ -294,23 +250,8 @@ function showMD(){
 }
 function setMD(v){MD=v;showMD()}
 function stepMD(n){var i=DS.indexOf(MD)+n;if(i>=0&&i<DS.length){MD=DS[i];showMD()}}
-</script>
- function tabTable(){
- act("n1");
- var z=LG[cur].z;
- fd("standings").then(function(d){
-  var t=d.standings[0].table;
-  var s="<div class='sub'>Season "+d.season.startDate.slice(0,4)+"/"+d.season.endDate.slice(2,4)+(d.season.currentMatchday?" · Matchday "+d.season.currentMatchday:"")+"</div>";
-  s+="<div class='tw'><table class='st'><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>PTS</th></tr>";
-  t.forEach(function(r){
-   var p=r.position;
-   var c=p>=z[3]?"rel":p<=z[0]?"cl":p<=z[1]?"el":p<=z[2]?"co":"";
-   var gd=r.goalDifference>0?"+"+r.goalDifference:r.goalDifference;
-   s+="<tr class='"+c+"'><td>"+p+"</td><td style='cursor:pointer' onclick='openTeam("+r.team.id+")'>"+cr(r.team)+nm(r.team)+"</td><td>"+r.playedGames+"</td><td>"+r.won+"</td><td>"+r.draw+"</td><td>"+r.lost+"</td><td>"+gd+"</td><td class='pts'>"+r.points+"</td></tr>"});
-  s+="</table></div><div class='legend'>"+LG[cur].l+"<br>Tap a team name to see its matches.</div>";
-  document.getElementById("lc").innerHTML=s;
- }).catch(fail);
-}
+
+/* ----- Team page ----- */
 function openTeam(id){
  act("n1");
  fd("matches").then(function(d){
@@ -335,6 +276,40 @@ function openTeam(id){
   x+="<div style='display:flex;justify-content:space-around;text-align:center;background:#101d32;border:1px solid #1d3354;border-radius:12px;padding:14px 6px;margin-bottom:12px'>";
   x+="<div><b style='font-size:20px;color:#4caf50'>"+w+"</b><br><span style='color:#9aacc3;font-size:12px'>Wins</span></div>";
   x+="<div><b style='font-size:20px;color:#f5a623'>"+dr+"</b><br><span style='color:#9aacc3;font-size:12px'>Draws</span></div>";
-  x+="<div><b style='font-size:20px;color:#e53935'>"+l+"</b><br><span style='color:#9aacc3;font-size:12px'>Loss
+  x+="<div><b style='font-size:20px;color:#e53935'>"+l+"</b><br><span style='color:#9aacc3;font-size:12px'>Losses</span></div>";
+  x+="<div><b style='font-size:20px'>"+gf+":"+ga+"</b><br><span style='color:#9aacc3;font-size:12px'>Goals</span></div></div>";
+  if(f5)x+="<div class='sub'>Form (last 5)</div><div>"+f5+"</div>";
+  x+="<div class='sub'>Upcoming</div>"+(up.slice(0,5).map(card).join("")||"<div class='msg'>No matches.</div>");
+  x+="<div class='sub'>Results</div>"+(fin.slice(-10).reverse().map(card).join("")||"<div class='msg'>No results yet.</div>");
+  document.getElementById("lc").innerHTML=x;
+  window.scrollTo(0,0);
+ }).catch(fail);
+}
+
+/* ----- Scorers with photos ----- */
+function pimg(name){
+ return fetch("https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&generator=search&gsrlimit=1&gsrsearch="+encodeURIComponent(name+" footballer")+"&prop=pageimages&piprop=thumbnail&pithumbsize=120").then(function(r){return r.json()}).then(function(d){
+  var p=d.query&&d.query.pages;if(!p)return "";
+  var k=Object.keys(p)[0];
+  return p[k].thumbnail?p[k].thumbnail.source:"";
+ }).catch(function(){return ""});
+}
+function tabScorers(){
+ act("n3");
+ fd("scorers").then(function(d){
+  var s="<div class='sub'>Top scorers</div>";
+  d.scorers.forEach(function(x,i){
+   s+="<div class='res' style='cursor:default;display:flex;gap:12px;align-items:center'><img id='ph"+i+"' alt='' style='width:64px;height:64px;border-radius:50%;object-fit:cover;background:#183153;flex:none'><div><h3>"+(i+1)+". "+x.player.name+"</h3><p>"+cr(x.team)+nm(x.team)+"<br>Goals: "+x.goals+" | Assists: "+(x.assists||0)+" | Matches: "+x.playedMatches+"</p></div></div>"});
+  document.getElementById("lc").innerHTML=s;
+  d.scorers.forEach(function(x,i){
+   pimg(x.player.name).then(function(src){
+    var e=document.getElementById("ph"+i);
+    if(e&&src)e.src=src;
+   });
+  });
+ }).catch(fail);
+}
+setup();
+</script>
 </body>
 </html>
