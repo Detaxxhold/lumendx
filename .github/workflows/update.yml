@@ -15,7 +15,7 @@ jobs:
           KEY: ${{ secrets.FD_KEY }}
         run: |
           mkdir -p data
-          for L in PD PL SA BL1 FL1 CL; do
+          for L in PD PL SA BL1 FL1 CL DED PPL ELC BSA; do
             for T in standings matches scorers; do
               Q=""
               if [ "$T" = "scorers" ]; then Q="?limit=20"; fi
