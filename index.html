@@ -270,6 +270,30 @@ function openMatch(id){
  document.getElementById("lc").innerHTML=x;
  window.scrollTo(0,0);
 }
+ var MD=null,MDL="",DS=[],ALLM=[];
+function tabMatches(){
+ act("n2");
+ fd("matches").then(function(d){
+  ALLM=d.matches||[];
+  DS=ALLM.map(function(m){return m.matchday||0}).filter(function(v,i,a){return a.indexOf(v)===i}).sort(function(a,b){return a-b});
+  if(MDL!==cur){MD=null;MDL=cur}
+  if(MD===null||DS.indexOf(MD)<0){
+   var nx=ALLM.filter(function(m){return m.status!="FINISHED"&&m.status!="CANCELLED"}).sort(function(a,b){return a.utcDate<b.utcDate?-1:1});
+   MD=nx.length?(nx[0].matchday||0):DS[DS.length-1];
+  }
+  showMD();
+ }).catch(fail);
+}
+function showMD(){
+ var top=DS[DS.length-1];
+ var s="<div style='display:flex;align-items:center;gap:8px;margin-bottom:10px'><button class='liga-btn' onclick='stepMD(-1)'>←</button><div style='flex:1;text-align:center;font-weight:bold'>"+(MD?"Matchday "+MD+" / "+top:"Knockout")+"</div><button class='liga-btn' onclick='stepMD(1)'>→</button></div>";
+ s+="<div style='display:flex;gap:6px;overflow:auto;padding-bottom:10px'>"+DS.map(function(v){return "<button class='liga-btn"+(v==MD?" sel":"")+"' onclick='setMD("+v+")'>"+(v||"KO")+"</button>"}).join("")+"</div>";
+ var list=ALLM.filter(function(m){return (m.matchday||0)==MD}).sort(function(a,b){return a.utcDate<b.utcDate?-1:1});
+ s+=list.map(card).join("")||"<div class='msg'>No matches.</div>";
+ document.getElementById("lc").innerHTML=s;
+}
+function setMD(v){MD=v;showMD()}
+function stepMD(n){var i=DS.indexOf(MD)+n;if(i>=0&&i<DS.length){MD=DS[i];showMD()}}
 </script>
 </body>
 </html>
