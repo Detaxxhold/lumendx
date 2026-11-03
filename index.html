@@ -311,5 +311,26 @@ function tabScorers(){
 }
 setup();
 </script>
+ var MAIN=["PD","PL","SA","BL1","FL1","CL"];
+LG.DED={n:"Eredivisie",f:"🇳🇱",z:[0,0,0,999],l:""};
+LG.PPL={n:"Primeira Liga",f:"🇵🇹",z:[0,0,0,999],l:""};
+LG.ELC={n:"Championship",f:"🇬🇧",z:[0,0,0,999],l:""};
+LG.BSA={n:"Brasileirão",f:"🇧🇷",z:[0,0,0,999],l:""};
+var OT=["DED","PPL","ELC","BSA"];
+var KG=["Kyrgyzstan national football team","Kyrgyz Premier League","FC Dordoi Bishkek","FC Abdysh-Ata Kant","FC Alay"];
+function setupLeagues(){
+ var h=MAIN.map(function(k){return "<button class='liga-btn"+(k==cur?" sel":"")+"' onclick='openLeague(\""+k+"\")'>"+LG[k].f+" "+LG[k].n+"</button>"}).join("");
+ var more=cur&&MAIN.indexOf(cur)<0;
+ h+="<button class='liga-btn"+(more?" sel":"")+"' onclick='openMore()'>🌍 More</button>";
+ document.getElementById("leagues").innerHTML=h;
+}
+function openMore(){
+ cur="MORE";setupLeagues();
+ var s="<div class='art'><button class='back' onclick='home()'>← Back to Home</button><h1>🌍 More</h1><div class='sub'>Other leagues</div><div style='display:flex;flex-wrap:wrap;gap:8px'>"+OT.map(function(k){return "<button class='liga-btn' onclick='openLeague(\""+k+"\")'>"+LG[k].f+" "+LG[k].n+"</button>"}).join("")+"</div><div class='sub'>Kyrgyzstan</div><div style='display:flex;flex-wrap:wrap;gap:8px'>"+KG.map(function(t,i){return "<button class='liga-btn' onclick='kg("+i+")'>"+t+"</button>"}).join("")+"</div></div>";
+ document.getElementById("app").innerHTML=s;
+ window.scrollTo(0,0);
+}
+function kg(i){lang="en";setup();document.getElementById("q").value=KG[i];search(true)}
+setupLeagues();
 </body>
 </html>
