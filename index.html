@@ -231,6 +231,45 @@ function tabScorers(){
   });
  }).catch(fail);
 }
+ var MM={};
+function card(m){
+ MM[m.id]=m;
+ var h=m.score.fullTime.home,a=m.score.fullTime.away;
+ var d=new Date(m.utcDate);
+ var ds=d.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+ var sc=(h===null||a===null)?"vs":h+" - "+a;
+ return "<div class='mc' style='cursor:pointer' onclick='openMatch("+m.id+")'><div class='d'>Matchday "+m.matchday+" · "+ds+"</div><div class='r'><div class='t'>"+cr(m.homeTeam)+nm(m.homeTeam)+"<br>"+cr(m.awayTeam)+nm(m.awayTeam)+"</div><div class='sc'>"+sc+"</div></div></div>";
+}
+function mrow(k,v){
+ return "<div style='display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #1d3354'><span style='color:#9aacc3'>"+k+"</span><b style='text-align:right'>"+v+"</b></div>";
+}
+function openMatch(id){
+ var m=MM[id];if(!m)return;
+ var s=m.score||{},ft=s.fullTime||{},ht=s.halfTime||{},pn=s.penalties;
+ var has=ft.home!==null&&ft.home!==undefined;
+ var d=new Date(m.utcDate);
+ var when=d.toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long",year:"numeric"})+" · "+d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+ var stt={FINISHED:"Finished",TIMED:"Scheduled",SCHEDULED:"Scheduled",IN_PLAY:"Live",PAUSED:"Half-time",POSTPONED:"Postponed",CANCELLED:"Cancelled"}[m.status]||m.status;
+ var ref=(m.referees&&m.referees.length)?m.referees.map(function(r){return r.name}).join(", "):"-";
+ var win=s.winner=="HOME_TEAM"?nm(m.homeTeam):s.winner=="AWAY_TEAM"?nm(m.awayTeam):s.winner=="DRAW"?"Draw":"-";
+ var big=has?ft.home+" - "+ft.away:"vs";
+ var x="<button class='back' onclick='tabMatches()'>← Back to matches</button>";
+ x+="<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:center;margin:10px 0 18px'>";
+ x+="<div style='flex:1'><img src='"+(m.homeTeam.crest||"")+"' style='width:56px;height:56px;object-fit:contain' onerror=\"this.style.display='none'\"><div style='font-weight:bold;margin-top:6px'>"+nm(m.homeTeam)+"</div></div>";
+ x+="<div class='sc' style='font-size:26px;padding:10px 16px'>"+big+"</div>";
+ x+="<div style='flex:1'><img src='"+(m.awayTeam.crest||"")+"' style='width:56px;height:56px;object-fit:contain' onerror=\"this.style.display='none'\"><div style='font-weight:bold;margin-top:6px'>"+nm(m.awayTeam)+"</div></div></div>";
+ x+=mrow("Status",stt)+mrow("Date",when);
+ if(m.matchday)x+=mrow("Matchday",m.matchday);
+ if(m.stage)x+=mrow("Stage",String(m.stage).replace(/_/g," "));
+ if(has&&ht&&ht.home!==null&&ht.home!==undefined)x+=mrow("Half-time",ht.home+" - "+ht.away);
+ if(has)x+=mrow("Full-time",ft.home+" - "+ft.away);
+ if(pn&&pn.home!==null&&pn.home!==undefined)x+=mrow("Penalties",pn.home+" - "+pn.away);
+ if(has)x+=mrow("Winner",win);
+ x+=mrow("Referee",ref);
+ if(m.venue)x+=mrow("Venue",m.venue);
+ document.getElementById("lc").innerHTML=x;
+ window.scrollTo(0,0);
+    }
 </script>
 </body>
 </html>
