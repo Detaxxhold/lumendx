@@ -336,6 +336,49 @@ function kg(i){lang="en";setup();document.getElementById("q").value=KG[i];search
  window.scrollTo(0,0);
   }
 setupLeagues();
+ function act(id){
+ ["n1","n2","n3","n4"].forEach(function(x){var e=document.getElementById(x);if(e)e.classList.toggle("active",x==id)});
+ document.getElementById("lc").innerHTML="<div class='msg'>Loading...</div>";
+}
+function openLeague(code){
+ cur=code;setupLeagues();
+ document.getElementById("app").innerHTML="<div class='art'><button class='back' onclick='home()'>← Back to Home</button><h1>"+LG[code].f+" "+LG[code].n+"</h1><div class='liga-nav'><button class='liga-nav-btn' id='n1' onclick='tabTable()'>Table</button><button class='liga-nav-btn' id='n2' onclick='tabMatches()'>Matches</button><button class='liga-nav-btn' id='n3' onclick='tabScorers()'>Scorers</button><button class='liga-nav-btn' id='n4' onclick='tabStats()'>Stats</button></div><div id='lc'></div></div>";
+ tabTable();window.scrollTo(0,0);
+}
+function tabStats(){
+ act("n4");
+ fd("matches").then(function(d){
+  var f=d.matches.filter(function(m){return m.status=="FINISHED"&&m.score.fullTime.home!==null&&m.score.fullTime.home!==undefined});
+  if(!f.length){document.getElementById("lc").innerHTML="<div class='msg'>No finished matches yet.</div>";return}
+  var g=0,hw=0,dw=0,aw=0,o25=0,bt=0,big=f[0],bg=-1,T={};
+  f.forEach(function(m){
+   var h=m.score.fullTime.home,a=m.score.fullTime.away,t=h+a;
+   g+=t;
+   if(h>a)hw++;else if(h==a)dw++;else aw++;
+   if(t>2)o25++;
+   if(h>0&&a>0)bt++;
+   if(t>bg){bg=t;big=m}
+   [[m.homeTeam,h,a],[m.awayTeam,a,h]].forEach(function(z){
+    var k=z[0].id;
+    if(!T[k])T[k]={t:z[0],gf:0,ga:0,cs:0};
+    T[k].gf+=z[1];T[k].ga+=z[2];
+    if(z[2]==0)T[k].cs++;
+   });
+  });
+  var arr=Object.keys(T).map(function(k){return T[k]});
+  var att=arr.slice().sort(function(a,b){return b.gf-a.gf})[0];
+  var def=arr.slice().sort(function(a,b){return a.ga-b.ga})[0];
+  var csx=arr.slice().sort(function(a,b){return b.cs-a.cs})[0];
+  var n=f.length;
+  function pc(v){return Math.round(v*100/n)+"%"}
+  var s="<div class='sub'>League stats</div>";
+  s+=mrow("Matches played",n)+mrow("Goals",g)+mrow("Goals per match",(g/n).toFixed(2))+mrow("Home wins",pc(hw))+mrow("Draws",pc(dw))+mrow("Away wins",pc(aw))+mrow("Over 2.5 goals",pc(o25))+mrow("Both teams scored",pc(bt));
+  s+="<div class='sub'>Teams</div>";
+  s+=mrow("Best attack",cr(att.t)+nm(att.t)+" ("+att.gf+")")+mrow("Best defence",cr(def.t)+nm(def.t)+" ("+def.ga+" conceded)")+mrow("Most clean sheets",cr(csx.t)+nm(csx.t)+" ("+csx.cs+")");
+  s+="<div class='sub'>Highest scoring match</div>"+card(big);
+  document.getElementById("lc").innerHTML=s;
+ }).catch(fail);
+  }
 setup();
 </script>
 </body>
