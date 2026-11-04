@@ -339,4 +339,44 @@ setupLeagues();
 setup();
 </script>
 </body>
+ <style>
+:root{--bg:#07140d;--card:#0e2418;--card2:#0a1a11;--bd:#1b4a30;--ac:#2ee66b;--acd:#04210f;--tx:#ffffff;--mu:#9fb8a8;--soft:#143222;--head:#0b1d13}
+body.light{--bg:#f2f6f3;--card:#ffffff;--card2:#eef4f0;--bd:#cfe0d5;--ac:#12a150;--acd:#ffffff;--tx:#10201a;--mu:#5b6f64;--soft:#e2efe7;--head:#ffffff}
+body{background:var(--bg)!important;color:var(--tx)!important}
+header{background:var(--head)!important;border-bottom-color:var(--ac)!important}
+.logo{color:var(--tx)!important}
+.logo span{color:var(--ac)!important}
+header p,footer,.legend,.msg,.mc .d,.res p{color:var(--mu)!important}
+#q{background:var(--bg)!important;color:var(--tx)!important;border-color:var(--bd)!important}
+#go{background:var(--ac)!important;color:var(--acd)!important}
+.langs button,.liga-btn{background:var(--card2)!important;color:var(--tx)!important;border-color:var(--bd)!important}
+.langs button.on,.liga-btn.sel{background:var(--ac)!important;color:var(--acd)!important}
+.res,.mc,.st,.liga-nav{background:var(--card)!important;border-color:var(--bd)!important}
+.res h3,.back,.art h2,.art a,.pts,.sub{color:var(--ac)!important}
+.art p{color:var(--tx)!important}
+.liga-nav-btn{color:var(--mu)!important}
+.liga-nav-btn.active{background:var(--soft)!important;color:var(--tx)!important;border-bottom-color:var(--ac)!important}
+.st th{background:var(--soft)!important;color:var(--ac)!important}
+.st td{border-bottom-color:var(--bd)!important}
+.st tr.cl td:first-child{border-left-color:var(--ac)!important}
+.sc{background:var(--soft)!important;color:var(--ac)!important}
+[style*="background:#101d32"]{background:var(--card)!important;border-color:var(--bd)!important}
+[style*="border-bottom:1px solid #1d3354"]{border-bottom-color:var(--bd)!important}
+[style*="color:#9aacc3"]{color:var(--mu)!important}
+#tg{position:fixed;right:12px;bottom:14px;z-index:99;width:46px;height:46px;border-radius:50%;border:1px solid var(--bd);background:var(--ac);color:var(--acd);font-size:22px;cursor:pointer}
+</style>
+<script>
+(function(){
+var b=document.createElement("button");b.id="tg";b.textContent="🌓";
+var l=false;
+try{l=localStorage.getItem("lt")=="1"}catch(e){}
+document.body.classList.toggle("light",l);
+b.onclick=function(){
+ l=!l;
+ document.body.classList.toggle("light",l);
+ try{localStorage.setItem("lt",l?"1":"0")}catch(e){}
+};
+document.body.appendChild(b);
+})();
+</script>
 </html>
