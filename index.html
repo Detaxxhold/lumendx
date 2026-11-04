@@ -380,6 +380,148 @@ function tabStats(){
  }).catch(fail);
   }
 setup();
+var bnS=document.createElement("style");
+bnS.textContent="body{padding-bottom:68px}#bn{position:fixed;left:0;right:0;bottom:0;z-index:98;display:flex;background:var(--head,#0b1d13);border-top:1px solid var(--bd,#1b4a30)}#bn button{flex:1;background:none;border:0;color:var(--mu,#9fb8a8);padding:8px 0 10px;font-size:11px;cursor:pointer}#bn button b{display:block;font-size:20px;font-weight:normal;margin-bottom:2px}#bn button.on{color:var(--ac,#2ee66b);font-weight:bold}#tg{bottom:78px!important;right:8px!important;width:38px!important;height:38px!important;font-size:18px!important}.favb{background:none;border:1px solid var(--ac,#2ee66b);color:var(--ac,#2ee66b);border-radius:20px;padding:6px 14px;font-size:14px;margin-top:8px;cursor:pointer}.qb{display:block;width:100%;text-align:left;background:var(--card,#0e2418);color:var(--tx,#fff);border:1px solid var(--bd,#1b4a30);border-radius:12px;padding:14px;margin-bottom:10px;font-size:16px;cursor:pointer}";
+document.head.appendChild(bnS);
+var bnT=[["⚽","Football"],["⭐","Favorites"],["📅","Calendar"],["🎯","Quiz"]];
+var bnD=document.createElement("div");bnD.id="bn";
+bnD.innerHTML=bnT.map(function(t,i){return "<button id='bt"+i+"' class='"+(i==0?"on":"")+"' onclick='setTab("+i+")'><b>"+t[0]+"</b>"+t[1]+"</button>"}).join("");
+document.body.appendChild(bnD);
+function setTab(i){
+ [0,1,2,3].forEach(function(k){document.getElementById("bt"+k).classList.toggle("on",k==i)});
+ cur="";setupLeagues();
+ if(i==0){home()}else if(i==1){favPage()}else if(i==2){calPage()}else{qzStart()}
+ window.scrollTo(0,0);
+}
+var tabOL=openLeague;
+openLeague=function(c){[0,1,2,3].forEach(function(k){document.getElementById("bt"+k).classList.toggle("on",k==0)});tabOL(c)};
+function fdc(code,name){
+ return fetch("data/"+code+"_"+name+".json?t="+Date.now()).then(function(r){if(!r.ok)throw new Error("x");return r.json()});
+}
+function favGet(){try{return JSON.parse(localStorage.getItem("fav")||"[]")}catch(e){return []}}
+function favSet(a){try{localStorage.setItem("fav",JSON.stringify(a))}catch(e){}}
+function favHas(id,code){return favGet().some(function(f){return f.id==id&&f.code==code})}
+function favToggle(id,code,name,crest){
+ var a=favGet(),i=-1;
+ a.forEach(function(f,k){if(f.id==id&&f.code==code)i=k});
+ if(i>=0)a.splice(i,1);else a.push({id:id,code:code,name:name,crest:crest});
+ favSet(a);
+}
+var favOT=openTeam;
+openTeam=function(id){
+ favOT(id);
+ var code=cur,n=0;
+ var iv=setInterval(function(){
+  var h=document.querySelector("#lc h2");
+  if(h&&!document.getElementById("favb")){
+   clearInterval(iv);
+   var im=document.querySelector("#lc img");
+   var name=h.textContent,crest=im?im.src:"";
+   var b=document.createElement("button");
+   b.id="favb";b.className="favb";
+   var paint=function(){b.textContent=favHas(id,code)?"⭐ In favorites":"☆ Add to favorites"};
+   paint();
+   b.onclick=function(){favToggle(id,code,name,crest);paint()};
+   h.parentNode.appendChild(b);
+  }
+  if(++n>50)clearInterval(iv);
+ },150);
+};
+function favOpen(code,id){
+ setTab(0);
+ cur=code;setupLeagues();
+ document.getElementById("app").innerHTML="<div class='art'><button class='back' onclick='setTab(1)'>← Favorites</button><h1>"+LG[code].f+" "+LG[code].n+"</h1><div class='liga-nav'><button class='liga-nav-btn' id='n1' onclick='tabTable()'>Table</button><button class='liga-nav-btn' id='n2' onclick='tabMatches()'>Matches</button><button class='liga-nav-btn' id='n3' onclick='tabScorers()'>Scorers</button><button class='liga-nav-btn' id='n4' onclick='tabStats()'>Stats</button></div><div id='lc'></div></div>";
+ openTeam(id);
+}
+function favDel(i){var a=favGet();a.splice(i,1);favSet(a);favPage()}
+function favPage(){
+ var a=favGet();
+ var app=document.getElementById("app");
+ if(!a.length){app.innerHTML="<div class='art'><h1>⭐ Favorites</h1><div class='msg'>No favorite teams yet.<br>Open a league, tap a team name in the table, then press the star button.</div></div>";return}
+ var s="<div class='art'><h1>⭐ Favorites</h1>";
+ a.forEach(function(f,i){
+  s+="<div class='res' style='display:flex;align-items:center;gap:12px' onclick='favOpen(\""+f.code+"\","+f.id+")'><img src='"+f.crest+"' style='width:44px;height:44px;object-fit:contain' onerror=\"this.style.display='none'\"><div style='flex:1'><h3 style='margin:0 0 4px'>"+f.name+"</h3><p id='fn"+i+"'>"+(LG[f.code]?LG[f.code].n:"")+"</p></div><button class='liga-btn' onclick='event.stopPropagation();favDel("+i+")'>✕</button></div>";
+ });
+ app.innerHTML=s+"</div>";
+ a.forEach(function(f,i){
+  fdc(f.code,"matches").then(function(d){
+   var up=d.matches.filter(function(m){return (m.homeTeam.id==f.id||m.awayTeam.id==f.id)&&m.status!="FINISHED"&&m.status!="CANCELLED"&&m.status!="POSTPONED"}).sort(function(x,y){return x.utcDate<y.utcDate?-1:1})[0];
+   var e=document.getElementById("fn"+i);
+   if(e&&up){
+    var home=up.homeTeam.id==f.id;
+    var opp=home?up.awayTeam:up.homeTeam;
+    var dt=new Date(up.utcDate);
+    e.innerHTML=(LG[f.code]?LG[f.code].n:"")+"<br>Next: "+(home?"vs ":"at ")+nm(opp)+" · "+dt.toLocaleDateString(undefined,{day:"numeric",month:"short"})+" "+dt.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+   }
+  }).catch(function(){});
+ });
+}
+var calD=new Date(),calAll=[];
+function calKey(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function calStep(n){calD=new Date(calD.getFullYear(),calD.getMonth(),calD.getDate()+n);calShow()}
+function calPage(){
+ calD=new Date();
+ document.getElementById("app").innerHTML="<div class='art'><h1>📅 Calendar</h1><div id='cc'><div class='msg'>Loading...</div></div></div>";
+ Promise.all(Object.keys(LG).map(function(c){return fdc(c,"matches").then(function(d){return {c:c,m:d.matches}}).catch(function(){return {c:c,m:[]}})})).then(function(r){calAll=r;calShow()});
+}
+function calShow(){
+ var k=calKey(calD);
+ var s="<div style='display:flex;align-items:center;gap:8px;margin-bottom:10px'><button class='liga-btn' onclick='calStep(-1)'>←</button><div style='flex:1;text-align:center;font-weight:bold'>"+calD.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"long"})+"</div><button class='liga-btn' onclick='calStep(1)'>→</button></div>";
+ var any=false;
+ calAll.forEach(function(g){
+  var ms=g.m.filter(function(m){return calKey(new Date(m.utcDate))==k}).sort(function(a,b){return a.utcDate<b.utcDate?-1:1});
+  if(!ms.length)return;
+  any=true;
+  s+="<div class='sub'>"+LG[g.c].f+" "+LG[g.c].n+"</div>";
+  s+=ms.map(function(m){
+   var h=m.score.fullTime.home,a=m.score.fullTime.away;
+   var sc=(h===null||a===null||h===undefined)?new Date(m.utcDate).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):h+" - "+a;
+   return "<div class='mc'><div class='r'><div class='t'>"+cr(m.homeTeam)+nm(m.homeTeam)+"<br>"+cr(m.awayTeam)+nm(m.awayTeam)+"</div><div class='sc'>"+sc+"</div></div></div>";
+  }).join("");
+ });
+ if(!any)s+="<div class='msg'>No matches on this day. Use the arrows.</div>";
+ document.getElementById("cc").innerHTML=s;
+}
+var qzQ=[],qzI=0,qzS=0;
+function qzShuf(a){return a.slice().sort(function(){return Math.random()-0.5})}
+function qzOpts(right,pool){
+ var o=qzShuf(pool.filter(function(x){return x!=right})).slice(0,3);
+ o.push(right);return qzShuf(o);
+}
+function qzStart(){
+ document.getElementById("app").innerHTML="<div class='art'><h1>🎯 Quiz</h1><div id='qc'><div class='msg'>Loading...</div></div></div>";
+ Promise.all(["PD","PL","SA","BL1","FL1"].map(function(c){
+  return Promise.all([fdc(c,"standings"),fdc(c,"scorers")]).then(function(r){return {c:c,t:r[0].standings[0].table,s:r[1].scorers}}).catch(function(){return null});
+ })).then(function(r){
+  var q=[];
+  r.filter(Boolean).forEach(function(L){
+   var nz=L.t.map(function(x){return nm(x.team)});
+   var n=LG[L.c].n;
+   if(L.t.length>3&&L.t[0].points>L.t[1].points){q.push({q:"Who is first in "+n+" now?",a:nm(L.t[0].team),o:qzOpts(nm(L.t[0].team),nz)})}
+   var g=L.t.slice().sort(function(x,y){return y.goalsFor-x.goalsFor});
+   if(g.length>3&&g[0].goalsFor>g[1].goalsFor){q.push({q:"Which team has scored the most goals in "+n+"?",a:nm(g[0].team),o:qzOpts(nm(g[0].team),nz)})}
+   if(L.s.length>3&&L.s[0].goals>L.s[1].goals){
+    var pn=L.s.map(function(x){return x.player.name});
+    q.push({q:"Who is the top scorer in "+n+"?",a:pn[0],o:qzOpts(pn[0],pn)});
+   }
+  });
+  qzQ=qzShuf(q).slice(0,10);qzI=0;qzS=0;
+  if(!qzQ.length){document.getElementById("qc").innerHTML="<div class='msg'>No data yet.</div>";return}
+  qzShow();
+ });
+}
+function qzShow(){
+ var c=document.getElementById("qc");
+ if(qzI>=qzQ.length){c.innerHTML="<div class='msg' style='font-size:22px'>Result: "+qzS+" / "+qzQ.length+"</div><button class='qb' style='text-align:center' onclick='qzStart()'>🔄 Play again</button>";return}
+ var q=qzQ[qzI];
+ c.innerHTML="<div class='sub'>Question "+(qzI+1)+" / "+qzQ.length+"</div><h2>"+q.q+"</h2>"+q.o.map(function(o,i){return "<button class='qb' onclick='qzAns("+i+")'>"+o+"</button>"}).join("");
+}
+function qzAns(i){
+ var q=qzQ[qzI];
+ if(q.o[i]==q.a)qzS++;
+ document.querySelectorAll("#qc .qb").forEach(function(b,k){b.disabled=true;if(q.o[k]==q.a)b.style.borderColor="#4caf50";else if(k==i)b.style.borderColor="#e53935"});
+ setTimeout(function(){qzI++;qzShow()},900);
+ } 
 </script>
 </body>
  <style>
