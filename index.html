@@ -199,72 +199,6 @@ function card(m){
 function mrow(k,v){
  return "<div style='display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #1d3354'><span style='color:#9aacc3'>"+k+"</span><b style='text-align:right'>"+v+"</b></div>";
 }
-
-/* ----- Match lineups ----- */
-function lineupEsc(v){
- return String(v==null?"":v).replace(/[&<>"']/g,function(c){
-  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
- });
-}
-function lineupPlayer(p){
- var num=p.shirtNumber==null?"":p.shirtNumber;
- var name=lineupEsc(p.name||"Unknown");
- return "<div style='flex:1 1 58px;max-width:100px;min-width:0;text-align:center;color:#fff'>"+
-  "<div style='margin:auto;background:#e9f4ed;color:#12351f;border:2px solid #2ee66b;border-radius:50%;width:34px;height:34px;line-height:30px;font-weight:bold'>"+lineupEsc(num||"•")+"</div>"+
-  "<div style='font-size:10px;line-height:1.25;margin-top:5px;overflow-wrap:anywhere;text-shadow:0 1px 2px #000'>"+name+"</div></div>";
-}
-function lineupTeam(t){
- if(!t)return "<div class='msg'>Team data unavailable.</div>";
- var players=Array.isArray(t.lineup)?t.lineup:[];
- var bench=Array.isArray(t.bench)?t.bench:[];
- var formation=t.formation||"";
- var coach=t.coach&&t.coach.name?t.coach.name:"Not available";
- if(!players.length&&!bench.length&&!t.coach&&!formation){
-  return "<div class='msg'>Lineup not available yet.</div>";
- }
- var gk=[],def=[],mid=[],att=[],other=[];
- players.forEach(function(p){
-  var pos=String(p.position||"").toLowerCase();
-  if(pos.indexOf("goal")>=0)gk.push(p);
-  else if(pos.indexOf("def")>=0)def.push(p);
-  else if(pos.indexOf("mid")>=0)mid.push(p);
-  else if(pos.indexOf("off")>=0||pos.indexOf("attack")>=0||pos.indexOf("forward")>=0)att.push(p);
-  else other.push(p);
- });
- if(other.length){
-  if(!gk.length&&players.length)gk.push(other.shift());
-  other.forEach(function(p){mid.push(p)});
- }
- var rows=[];
- if(att.length)rows.push(att);
- if(mid.length)rows.push(mid);
- if(def.length)rows.push(def);
- if(gk.length)rows.push(gk);
- if(!gk.length&&!def.length&&!mid.length&&!att.length&&players.length){
-  rows=[players.slice(1),players.slice(0,1)];
- }
- var pitch="<div style='background:repeating-linear-gradient(0deg,#17683b 0px,#17683b 45px,#1b7544 45px,#1b7544 90px);border:2px solid #83bd91;border-radius:12px;padding:13px 4px;margin:10px 0;overflow:hidden'>";
- pitch+="<div style='border:1px solid rgba(255,255,255,.5);border-radius:50%;width:55px;height:55px;margin:0 auto 12px'></div>";
- rows.forEach(function(r){
-  if(!r.length)return;
-  pitch+="<div style='display:flex;justify-content:space-evenly;align-items:flex-start;gap:2px;margin:14px 0;flex-wrap:nowrap'>";
-  pitch+=r.map(lineupPlayer).join("");
-  pitch+="</div>";
- });
- pitch+="<div style='border:1px solid rgba(255,255,255,.5);width:70%;height:1px;margin:12px auto 0'></div></div>";
- var s="<div style='margin-top:18px'>";
- s+="<div style='text-align:center;color:var(--ac,#2ee66b);font-weight:bold'>Starting XI · "+lineupEsc(formation||"Formation unavailable")+"</div>";
- s+=pitch;
- s+="<div class='sub'>Substitutes ("+bench.length+")</div>";
- if(bench.length){
-  s+="<div style='background:var(--card,#0e2418);border:1px solid var(--bd,#1b4a30);border-radius:10px;padding:10px;line-height:1.9'>";
-  s+=bench.map(function(p){return "<div>"+(p.shirtNumber!=null?"<b>"+lineupEsc(p.shirtNumber)+"</b> · ":"")+lineupEsc(p.name||"Unknown")+"</div>"}).join("");
-  s+="</div>";
- }else s+="<div class='msg' style='padding:12px'>Substitutes not available.</div>";
- s+="<div class='sub'>Coach</div><div style='padding:10px;background:var(--card,#0e2418);border:1px solid var(--bd,#1b4a30);border-radius:10px'>"+lineupEsc(coach)+"</div>";
- s+="</div>";
- return s;
-}
 function openMatch(id){
  var m=MM[id];if(!m)return;
  var s=m.score||{},ft=s.fullTime||{},ht=s.halfTime||{},pn=s.penalties;
@@ -289,14 +223,6 @@ function openMatch(id){
  if(has)x+=mrow("Winner",win);
  x+=mrow("Referee",ref);
  if(m.venue)x+=mrow("Venue",m.venue);
- x+="<div style='margin-top:26px;border-top:1px solid var(--bd,#1b4a30);padding-top:12px'>";
- x+="<h2 style='text-align:center;color:var(--ac,#2ee66b)'>⚽ Match Lineups</h2>";
- x+="<h3 style='text-align:center'>"+lineupEsc(nm(m.homeTeam))+"</h3>";
- x+=lineupTeam(m.homeTeam);
- x+="<div style='border-top:1px solid var(--bd,#1b4a30);margin-top:22px;padding-top:12px'>";
- x+="<h3 style='text-align:center'>"+lineupEsc(nm(m.awayTeam))+"</h3>";
- x+=lineupTeam(m.awayTeam);
- x+="</div></div>";
  document.getElementById("lc").innerHTML=x;
  window.scrollTo(0,0);
 }
