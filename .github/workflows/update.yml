@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Fetch data
         env:
           KEY: ${{ secrets.FD_KEY }}
@@ -19,10 +20,17 @@ jobs:
             for T in standings matches scorers; do
               Q=""
               if [ "$T" = "scorers" ]; then Q="?limit=20"; fi
-              curl -sf -H "X-Auth-Token: $KEY" "https://api.football-data.org/v4/competitions/$L/$T$Q" -o "data/${L}_$T.json" || echo "failed $L $T"
+
+              if [ "$T" = "matches" ]; then
+                curl -sf -H "X-Auth-Token: $KEY" -H "X-Unfold-Lineups: true" "https://api.football-data.org/v4/competitions/$L/$T$Q" -o "data/${L}_$T.json" || echo "failed $L $T"
+              else
+                curl -sf -H "X-Auth-Token: $KEY" "https://api.football-data.org/v4/competitions/$L/$T$Q" -o "data/${L}_$T.json" || echo "failed $L $T"
+              fi
+
               sleep 7
             done
           done
+
       - name: Save
         run: |
           git config user.name "bot"
