@@ -633,6 +633,48 @@ if(LANGS[wl0]&&wl0!=lang){lang=wl0;setup()}
 var dl0=sGet("dl","");
 if(dl0&&LG[dl0])openLeague(dl0);
 </script>
+ <script>
+var SEC="";
+var SR=[
+ ["mode","🌙","Appearance",function(){return {dark:"Dark",light:"Light",system:"System"}[sGet("mode",lt0?"light":"dark")]}],
+ ["acc","🎨","Accent color",function(){return {green:"Green",blue:"Blue",red:"Red",gold:"Gold"}[sGet("acc","green")]}],
+ ["fs","🔤","Font size",function(){return {s:"Small",m:"Medium",l:"Large"}[sGet("fs","m")]}],
+ ["dl","🏠","Start page",function(){var v=sGet("dl","");return v&&LG[v]?LG[v].n:"Home"}],
+ ["wl","🌐","Search language",function(){return LANGS[sGet("wl","en")]||"English"}],
+ ["ds","⚡","Data saver",function(){return sGet("ds","0")=="1"?"On":"Off"}],
+ ["st","🗂","Storage",function(){return "Favorites, reset"}],
+ ["ab","ℹ️","About LUMENDX",function(){return "Version, sources"}]
+];
+function setPage(){SEC="";sShow()}
+function sOpen(k){SEC=k;sShow();window.scrollTo(0,0)}
+function sPick(k,v){sSet(k,v);applyAll();if(k=="wl"&&LANGS[v]){lang=v;setup()}sShow()}
+function sSec(k){
+ var lg=[["","Home"]].concat(Object.keys(LG).map(function(x){return [x,LG[x].f+" "+LG[x].n]}));
+ if(k=="mode")return sOpts("mode",[["dark","🌙 Dark"],["light","☀️ Light"],["system","📱 System"]],lt0?"light":"dark");
+ if(k=="acc")return sOpts("acc",[["green","🟢 Green"],["blue","🔵 Blue"],["red","🔴 Red"],["gold","🟡 Gold"]],"green");
+ if(k=="fs")return sOpts("fs",[["s","Small"],["m","Medium"],["l","Large"]],"m");
+ if(k=="dl")return sOpts("dl",lg,"");
+ if(k=="wl")return sOpts("wl",[["en","English"],["ru","Русский"],["ky","Кыргызча"]],"en");
+ if(k=="ds")return sOpts("ds",[["0","Off"],["1","On (no player photos)"]],"0");
+ if(k=="st")return "<div style='display:flex;flex-wrap:wrap;gap:8px'><button class='liga-btn' onclick='sClear()'>🗑 Clear favorites</button><button class='liga-btn' onclick='sReset()'>↩ Reset settings</button></div>";
+ if(k=="ab")return "<div class='res' style='cursor:default'><h3>LUMENDX</h3><p>Football data: football-data.org<br>Photos and articles: Wikipedia<br>Data updates every hour.</p></div>";
+ return "";
+}
+function sShow(){
+ var app=document.getElementById("app");
+ if(!SEC){
+  var s="<div class='art'><h1>⚙ Settings</h1>";
+  SR.forEach(function(r){
+   s+="<div class='res' style='display:flex;align-items:center;gap:14px' onclick='sOpen(\""+r[0]+"\")'><div style='font-size:24px'>"+r[1]+"</div><div style='flex:1'><h3 style='margin:0 0 2px;color:var(--tx)!important'>"+r[2]+"</h3><p>"+r[3]()+"</p></div><div style='color:var(--mu);font-size:24px'>›</div></div>";
+  });
+  app.innerHTML=s+"</div>";
+  return;
+ }
+ var t="";
+ SR.forEach(function(r){if(r[0]==SEC)t=r[1]+" "+r[2]});
+ app.innerHTML="<div class='art'><button class='back' onclick='setPage()'>← Settings</button><h1>"+t+"</h1>"+sSec(SEC)+"</div>";
+}
+ </script>
 </body>
  <style>
 :root{--bg:#07140d;--card:#0e2418;--card2:#0a1a11;--bd:#1b4a30;--ac:#2ee66b;--acd:#04210f;--tx:#ffffff;--mu:#9fb8a8;--soft:#143222;--head:#0b1d13}
