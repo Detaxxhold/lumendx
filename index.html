@@ -674,6 +674,28 @@ function sShow(){
  SR.forEach(function(r){if(r[0]==SEC)t=r[1]+" "+r[2]});
  app.innerHTML="<div class='art'><button class='back' onclick='setPage()'>← Settings</button><h1>"+t+"</h1>"+sSec(SEC)+"</div>";
 }
+  // STARTING XI
+var homeXI = m.homeTeam?.lineup || [];
+var awayXI = m.awayTeam?.lineup || [];
+
+x += `
+<div class="xi-box">
+  <h3>⚽ Starting XI</h3>
+  <div class="xi-teams">
+    <div>
+      <h4>${m.homeTeam?.name || "Home"}</h4>
+      ${homeXI.length
+        ? homeXI.map(p => `<p>${p.shirtNumber || ""} ${p.name || p}</p>`).join("")
+        : "<p>Lineup not available</p>"}
+    </div>
+    <div>
+      <h4>${m.awayTeam?.name || "Away"}</h4>
+      ${awayXI.length
+        ? awayXI.map(p => `<p>${p.shirtNumber || ""} ${p.name || p}</p>`).join("")
+        : "<p>Lineup not available</p>"}
+    </div>
+  </div>
+</div>`;
  </script>
 </body>
  <style>
