@@ -523,6 +523,60 @@ function qzAns(i){
  setTimeout(function(){qzI++;qzShow()},900);
  } 
 </script>
+ var SCL=[];
+function pAge(dob){
+ if(!dob)return "-";
+ var b=new Date(dob),n=new Date();
+ var a=n.getFullYear()-b.getFullYear();
+ var m=n.getMonth()-b.getMonth();
+ if(m<0||(m==0&&n.getDate()<b.getDate()))a--;
+ return a;
+}
+function tabScorers(){
+ act("n3");
+ fd("scorers").then(function(d){
+  SCL=d.scorers;
+  var s="<div class='sub'>Top scorers · tap a player</div>";
+  SCL.forEach(function(x,i){
+   s+="<div class='res' style='display:flex;gap:12px;align-items:center' onclick='openPlayer("+i+")'><img id='ph"+i+"' alt='' style='width:64px;height:64px;border-radius:50%;object-fit:cover;background:#183153;flex:none'><div><h3>"+(i+1)+". "+x.player.name+"</h3><p>"+cr(x.team)+nm(x.team)+"<br>Goals: "+x.goals+" | Assists: "+(x.assists||0)+" | Matches: "+x.playedMatches+"</p></div></div>";
+  });
+  document.getElementById("lc").innerHTML=s;
+  SCL.forEach(function(x,i){
+   pimg(x.player.name).then(function(src){
+    var e=document.getElementById("ph"+i);
+    if(e&&src)e.src=src;
+   });
+  });
+ }).catch(fail);
+}
+function openPlayer(i){
+ var x=SCL[i],p=x.player,pm=x.playedMatches||0;
+ var h="<button class='back' onclick='tabScorers()'>← Back to scorers</button>";
+ h+="<div style='text-align:center;margin:6px 0 14px'><img id='ppx' alt='' style='width:110px;height:110px;border-radius:50%;object-fit:cover;background:#183153'><h2 style='margin:10px 0 2px'>"+p.name+"</h2><div>"+cr(x.team)+nm(x.team)+"</div></div>";
+ h+=mrow("Age",p.dateOfBirth?pAge(p.dateOfBirth)+" ("+p.dateOfBirth+")":"-");
+ h+=mrow("Nationality",p.nationality||"-");
+ h+=mrow("Position",p.position||p.section||"-");
+ if(p.shirtNumber)h+=mrow("Shirt number",p.shirtNumber);
+ h+=mrow("Matches",pm)+mrow("Goals",x.goals)+mrow("Assists",x.assists||0);
+ if(x.penalties)h+=mrow("Penalties",x.penalties);
+ if(pm)h+=mrow("Goals per match",(x.goals/pm).toFixed(2));
+ h+="<div class='sub'>About</div><div id='pbio' style='line-height:1.7;color:#9aacc3'>Loading...</div>";
+ document.getElementById("lc").innerHTML=h;
+ window.scrollTo(0,0);
+ var u="https://en.wikipedia.org/w/api.php?format=json&origin=*&action=query&generator=search&gsrlimit=1&gsrsearch="+encodeURIComponent(p.name+" footballer")+"&prop=pageimages|extracts&piprop=thumbnail&pithumbsize=400&exintro=1&explaintext=1&exsentences=4";
+ fetch(u).then(function(r){return r.json()}).then(function(d){
+  var e=document.getElementById("pbio");
+  var pg=d.query&&d.query.pages;
+  if(!pg){if(e)e.textContent="No Wikipedia info found.";return}
+  var q=pg[Object.keys(pg)[0]];
+  if(e){
+   e.textContent=q.extract||"No info.";
+   e.insertAdjacentHTML("beforeend","<br><br><a target='_blank' style='color:#18c8ff' href='https://en.wikipedia.org/wiki/"+encodeURIComponent(q.title.replace(/ /g,"_"))+"'>Open on Wikipedia →</a><br><small>Photo and text come from Wikipedia and may sometimes be about another person.</small>");
+  }
+  var im=document.getElementById("ppx");
+  if(im&&q.thumbnail)im.src=q.thumbnail.source;
+ }).catch(function(){var e=document.getElementById("pbio");if(e)e.textContent="Could not load."});
+}
 </body>
  <style>
 :root{--bg:#07140d;--card:#0e2418;--card2:#0a1a11;--bd:#1b4a30;--ac:#2ee66b;--acd:#04210f;--tx:#ffffff;--mu:#9fb8a8;--soft:#143222;--head:#0b1d13}
