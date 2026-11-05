@@ -576,6 +576,62 @@ function openPlayer(i){
   if(im&&q.thumbnail)im.src=q.thumbnail.source;
  }).catch(function(){var e=document.getElementById("pbio");if(e)e.textContent="Could not load."});
                     }
+ var ACC={green:["#2ee66b","#12a150","#04210f","#ffffff"],blue:["#18c8ff","#0a84c6","#06121f","#ffffff"],red:["#ff6b6b","#d62f2f","#2a0505","#ffffff"],gold:["#f5c242","#b8860b","#2b2100","#ffffff"]};
+var lt0=false;try{lt0=localStorage.getItem("lt")=="1"}catch(e){}
+function sGet(k,d){try{var v=localStorage.getItem("s_"+k);return v===null?d:v}catch(e){return d}}
+function sSet(k,v){try{localStorage.setItem("s_"+k,v)}catch(e){}}
+function applyAll(){
+ var m=sGet("mode",lt0?"light":"dark");
+ var light=m=="light"||(m=="system"&&window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches);
+ document.body.classList.toggle("light",light);
+ var ac=ACC[sGet("acc","green")]||ACC.green;
+ document.body.style.setProperty("--ac",light?ac[1]:ac[0]);
+ document.body.style.setProperty("--acd",light?ac[3]:ac[2]);
+ var z={s:"0.9",m:"1",l:"1.15"}[sGet("fs","m")]||"1";
+ document.getElementById("app").style.zoom=z;
+}
+var sS=document.createElement("style");
+sS.textContent="#tg{display:none!important}";
+document.head.appendChild(sS);
+document.getElementById("bn").insertAdjacentHTML("beforeend","<button id='bt4' onclick='setTab(4)'><b>⚙</b>Settings</button>");
+function setTab(i){
+ [0,1,2,3,4].forEach(function(k){var e=document.getElementById("bt"+k);if(e)e.classList.toggle("on",k==i)});
+ cur="";setupLeagues();
+ if(i==0){home()}else if(i==1){favPage()}else if(i==2){calPage()}else if(i==3){qzStart()}else{setPage()}
+ window.scrollTo(0,0);
+}
+var ol2=openLeague;
+openLeague=function(c){var e=document.getElementById("bt4");if(e)e.classList.remove("on");ol2(c)};
+var pimgO=pimg;
+pimg=function(n){return sGet("ds","0")=="1"?Promise.resolve(""):pimgO(n)};
+function sOpts(key,list,def){
+ var c=sGet(key,def);
+ return "<div style='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px'>"+list.map(function(o){return "<button class='liga-btn"+(o[0]==c?" sel":"")+"' onclick='sPick(\""+key+"\",\""+o[0]+"\")'>"+o[1]+"</button>"}).join("")+"</div>";
+}
+function sPick(k,v){sSet(k,v);applyAll();if(k=="wl"&&LANGS[v]){lang=v;setup()}setPage()}
+function sClear(){favSet([]);alert("Favorites cleared")}
+function sReset(){
+ ["mode","acc","fs","dl","wl","ds"].forEach(function(k){try{localStorage.removeItem("s_"+k)}catch(e){}});
+ applyAll();setPage();
+}
+function setPage(){
+ var lg=[["","Home"]].concat(Object.keys(LG).map(function(k){return [k,LG[k].f+" "+LG[k].n]}));
+ var s="<div class='art'><h1>⚙ Settings</h1>";
+ s+="<div class='sub'>Appearance</div>"+sOpts("mode",[["dark","🌙 Dark"],["light","☀️ Light"],["system","📱 System"]],lt0?"light":"dark");
+ s+="<div class='sub'>Accent color</div>"+sOpts("acc",[["green","🟢 Green"],["blue","🔵 Blue"],["red","🔴 Red"],["gold","🟡 Gold"]],"green");
+ s+="<div class='sub'>Font size</div>"+sOpts("fs",[["s","Small"],["m","Medium"],["l","Large"]],"m");
+ s+="<div class='sub'>Start page</div>"+sOpts("dl",lg,"");
+ s+="<div class='sub'>Search language (Wikipedia)</div>"+sOpts("wl",[["en","English"],["ru","Русский"],["ky","Кыргызча"]],"en");
+ s+="<div class='sub'>Data saver</div>"+sOpts("ds",[["0","Off"],["1","On (no player photos)"]],"0");
+ s+="<div class='sub'>Storage</div><div style='display:flex;flex-wrap:wrap;gap:8px'><button class='liga-btn' onclick='sClear()'>🗑 Clear favorites</button><button class='liga-btn' onclick='sReset()'>↩ Reset settings</button></div>";
+ s+="<div class='sub'>About</div><div class='res' style='cursor:default'><h3>LUMENDX</h3><p>Football data: football-data.org<br>Photos and articles: Wikipedia<br>Data updates every hour.</p></div></div>";
+ document.getElementById("app").innerHTML=s;
+}
+applyAll();
+var wl0=sGet("wl","en");
+if(LANGS[wl0]&&wl0!=lang){lang=wl0;setup()}
+var dl0=sGet("dl","");
+if(dl0&&LG[dl0])openLeague(dl0);
 </script>
 </body>
  <style>
