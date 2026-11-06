@@ -803,4 +803,29 @@ b.onclick=function(){
 document.body.appendChild(b);
 })();
 </script>
-</html>
+</html><script>
+(function(){
+ var re=/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u2600-\u2714\u2716-\u27BF\u2B50\u2B1B\u2B1C\uFE0F\u200D]/gu;
+ var busy=false;
+ function clean(){
+  busy=true;
+  var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null);
+  var n,list=[];
+  while(n=w.nextNode()){
+   var p=n.parentNode&&n.parentNode.nodeName;
+   if(p=="SCRIPT"||p=="STYLE")continue;
+   if(re.test(n.nodeValue)){re.lastIndex=0;list.push(n)}
+   re.lastIndex=0;
+  }
+  list.forEach(function(t){t.nodeValue=t.nodeValue.replace(re,"").replace(/^\s+/,"")});
+  busy=false;
+ }
+ var q=false;
+ new MutationObserver(function(){
+  if(busy||q)return;
+  q=true;
+  requestAnimationFrame(function(){q=false;clean()});
+ }).observe(document.body,{childList:true,subtree:true,characterData:true});
+ clean();
+})();
+</script>
