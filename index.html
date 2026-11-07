@@ -829,287 +829,251 @@ document.body.appendChild(b);
  clean();
 })();
 </script>
+</style>
+ </script>
+
 <style>
+/* LUMENDX NEW FOOTBALL HOME */
+#app .dash{max-width:1200px;margin:auto}
+.dash-title{font-size:22px;font-weight:900;margin:25px 0 14px}
+.dash-sub{color:#8da8c8;font-size:13px;margin-top:-8px;margin-bottom:14px}
+.dash-hero{
+ background:linear-gradient(115deg,#102e59,#07152c 75%);
+ border:1px solid #24558b;border-radius:20px;
+ padding:20px;margin:8px 0 24px;position:relative;overflow:hidden;
+}
+.dash-hero:after{
+ content:"";position:absolute;width:180px;height:180px;
+ background:#168cff22;border-radius:50%;right:-60px;top:-70px;
+}
+.dash-tag{font-size:11px;color:#55b5ff;font-weight:bold;letter-spacing:1.5px}
+.dash-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:22px 0}
+.dash-team{text-align:center;font-size:14px;font-weight:bold}
+.dash-team img{width:65px;height:65px;object-fit:contain;display:block;margin:0 auto 10px}
+.dash-vs{font-size:22px;font-weight:900;color:#64baff}
+.dash-date{text-align:center;color:#a9bfdc;font-size:12px}
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.dash-league{
+ background:linear-gradient(145deg,#102440,#0a172b);
+ border:1px solid #203e63;border-radius:15px;
+ padding:15px 8px;text-align:center;min-height:105px;
+ cursor:pointer;
+}
+.dash-league:active{transform:scale(.97)}
+.dash-league strong{display:block;font-size:13px;margin-top:9px}
+.dash-league small{color:#8da8c8;font-size:10px}
+.dash-symbol{
+ width:39px;height:39px;border-radius:12px;
+ background:#153b67;color:#65baff;
+ display:grid;place-items:center;
+ font-size:15px;font-weight:900;margin:auto;
+}
+.dash-list{display:grid;gap:9px}
+.dash-list .mc{margin:0}
+.dash-scorer{
+ display:flex;align-items:center;gap:12px;
+ padding:12px;background:#0d1d34;
+ border:1px solid #203e63;border-radius:14px;margin-bottom:9px;
+}
+.dash-scorer img{width:48px;height:48px;border-radius:50%;object-fit:cover;background:#183153}
+.dash-scorer strong{font-size:14px}
+.dash-scorer small{display:block;color:#91a8c5;margin-top:5px}
+.dash-goals{margin-left:auto;font-size:21px;font-weight:bold;color:#55b5ff}
+.dash-more{
+ display:block;width:100%;padding:13px;
+ background:#102c4e;border:1px solid #28517c;
+ color:#64baff;border-radius:12px;font-weight:bold;
+ margin-top:10px;cursor:pointer;
+}
+.dash-empty{color:#91a8c5;padding:18px;text-align:center;background:#0d1d34;border-radius:13px}
+@media(max-width:420px){
+ .dash-grid{grid-template-columns:repeat(2,1fr)}
+ .dash-hero{padding:16px}
+ .dash-team img{width:52px;height:52px}
+}
 </style>
 
-<style>
-/* ===== LUMENDX FOOTBALL REDESIGN ===== */
+<script>
+(function(){
+var oldHome=window.home;
 
-:root{
-  --bg:#050d1b;
-  --card:#0c1930;
-  --card2:#112440;
-  --bd:#1d3659;
-  --ac:#168cff;
-  --acd:#061426;
-  --tx:#f4f8ff;
-  --mu:#91a8c5;
-  --soft:#102849;
-  --head:#071326;
+window.home=function(){
+ cur="";
+ setupLeagues();
+
+ var app=document.getElementById("app");
+
+ app.innerHTML=`
+ <div class="dash">
+   <div class="dash-hero" id="dashHero">
+     <div class="dash-tag">LUMENDX • FEATURED MATCH</div>
+     <div class="dash-empty">Loading match data...</div>
+   </div>
+
+   <div class="dash-title">Upcoming Matches</div>
+   <div class="dash-sub">Next football matches</div>
+   <div id="dashMatches" class="dash-list">
+     <div class="dash-empty">Loading...</div>
+   </div>
+
+   <div class="dash-title">Explore Leagues</div>
+   <div class="dash-sub">Choose your competition</div>
+   <div id="dashLeagues" class="dash-grid"></div>
+
+   <div class="dash-title">League Standings</div>
+   <div class="dash-sub">Current season</div>
+   <div id="dashTable">
+     <div class="dash-empty">Loading...</div>
+   </div>
+
+   <div class="dash-title">Top Scorers</div>
+   <div class="dash-sub">Leading goal scorers</div>
+   <div id="dashScorers">
+     <div class="dash-empty">Loading...</div>
+   </div>
+
+   <button class="dash-more" onclick="setTab(2)">
+     Open Football Calendar →
+   </button>
+ </div>`;
+
+ window.scrollTo(0,0);
+ dashLoad();
+};
+
+function dashLoad(){
+ var all=[];
+
+ // League cards
+ document.getElementById("dashLeagues").innerHTML=MAIN.map(function(c){
+  return `<div class="dash-league" onclick="openLeague('${c}')">
+    <div class="dash-symbol">${c}</div>
+    <strong>${LG[c].n}</strong>
+    <small>View competition →</small>
+  </div>`;
+ }).join("");
+
+ // Read existing match JSON files
+ Promise.all(MAIN.map(function(c){
+  return fdc(c,"matches").then(function(d){
+   return (d.matches||[]).map(function(m){
+    m._dashCode=c;
+    return m;
+   });
+  }).catch(function(){return []});
+ })).then(function(groups){
+  all=[].concat.apply([],groups);
+
+  var upcoming=all.filter(function(m){
+   return m.status!="FINISHED" &&
+          m.status!="CANCELLED" &&
+          m.status!="POSTPONED";
+  }).sort(function(a,b){
+   return new Date(a.utcDate)-new Date(b.utcDate);
+  });
+
+  dashHero(upcoming[0]);
+  dashMatches(upcoming.slice(0,6));
+ }).catch(function(){
+  document.getElementById("dashMatches").innerHTML=
+   '<div class="dash-empty">Match data unavailable.</div>';
+ });
+
+ // Existing Premier League standings and scorers
+ Promise.all([
+  fdc("PL","standings"),
+  fdc("PL","scorers")
+ ]).then(function(r){
+  dashTable(r[0]);
+  dashScorers(r[1]);
+ }).catch(function(){
+  document.getElementById("dashTable").innerHTML=
+   '<div class="dash-empty">Table data unavailable.</div>';
+  document.getElementById("dashScorers").innerHTML=
+   '<div class="dash-empty">Scorer data unavailable.</div>';
+ });
 }
 
-body{
-  background:
-    radial-gradient(ellipse at 50% -20%,#12366a 0%,transparent 55%),
-    var(--bg)!important;
-  color:var(--tx)!important;
-  font-family:Arial,sans-serif!important;
+function dashHero(m){
+ var e=document.getElementById("dashHero");
+ if(!m){
+  e.innerHTML='<div class="dash-tag">FEATURED MATCH</div><div class="dash-empty">No upcoming match available.</div>';
+  return;
+ }
+
+ var d=new Date(m.utcDate);
+ var date=d.toLocaleDateString(undefined,{day:"numeric",month:"long"});
+ var time=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+
+ e.innerHTML=`
+ <div class="dash-tag">${LG[m._dashCode].n.toUpperCase()} • NEXT MATCH</div>
+ <div class="dash-teams">
+  <div class="dash-team">
+   <img src="${m.homeTeam.crest||""}" onerror="this.style.visibility='hidden'">
+   ${nm(m.homeTeam)}
+  </div>
+  <div class="dash-vs">VS</div>
+  <div class="dash-team">
+   <img src="${m.awayTeam.crest||""}" onerror="this.style.visibility='hidden'">
+   ${nm(m.awayTeam)}
+  </div>
+ </div>
+ <div class="dash-date">${date} • ${time}</div>
+ <button class="dash-more" id="dashHeroBtn">Match details →</button>`;
+
+ e.querySelector("#dashHeroBtn").onclick=function(){
+  openLeague(m._dashCode);
+  tabMatches();
+ };
 }
 
-/* HEADER */
-header{
-  background:linear-gradient(135deg,#0b1c37,#071326)!important;
-  border-bottom:1px solid #1c4b80!important;
-  padding:20px 16px!important;
+function dashMatches(list){
+ var e=document.getElementById("dashMatches");
+ if(!list.length){
+  e.innerHTML='<div class="dash-empty">No upcoming matches.</div>';
+  return;
+ }
+ e.innerHTML=list.map(function(m){
+  return card(m);
+ }).join("");
 }
 
-.logo{
-  font-size:30px!important;
-  font-weight:900!important;
-  letter-spacing:2px!important;
+function dashTable(d){
+ var e=document.getElementById("dashTable");
+ var t=d.standings&&d.standings[0]&&d.standings[0].table;
+ if(!t){e.innerHTML='<div class="dash-empty">No standings available.</div>';return}
+
+ var s='<div class="tw"><table class="st"><tr><th>#</th><th>Team</th><th>P</th><th>GD</th><th>PTS</th></tr>';
+ t.slice(0,6).forEach(function(r){
+  s+=`<tr>
+   <td>${r.position}</td>
+   <td>${cr(r.team)}${nm(r.team)}</td>
+   <td>${r.playedGames}</td>
+   <td>${r.goalDifference}</td>
+   <td class="pts">${r.points}</td>
+  </tr>`;
+ });
+ s+='</table></div><button class="dash-more" onclick="openLeague(\'PL\')">Full Premier League table →</button>';
+ e.innerHTML=s;
 }
 
-.logo span{
-  color:#168cff!important;
+function dashScorers(d){
+ var e=document.getElementById("dashScorers");
+ var a=d.scorers||[];
+ if(!a.length){e.innerHTML='<div class="dash-empty">No scorer data available.</div>';return}
+
+ e.innerHTML=a.slice(0,5).map(function(x,i){
+  return `<div class="dash-scorer">
+   <div style="font-size:13px;color:#7fa8d5">${i+1}</div>
+   <div style="flex:1">
+    <strong>${x.player.name}</strong>
+    <small>${nm(x.team)}</small>
+   </div>
+   <div class="dash-goals">${x.goals}</div>
+  </div>`;
+ }).join("")+
+ '<button class="dash-more" onclick="openLeague(\'PL\');tabScorers()">All top scorers →</button>';
 }
 
-header p{
-  color:var(--mu)!important;
-}
-
-/* SEARCH */
-.row{
-  gap:10px!important;
-}
-
-#q{
-  background:#0b1930!important;
-  border:1px solid #24466f!important;
-  border-radius:13px!important;
-  padding:14px!important;
-}
-
-#go{
-  background:linear-gradient(135deg,#168cff,#0757d5)!important;
-  color:white!important;
-  border-radius:13px!important;
-  padding:0 20px!important;
-}
-
-/* LANGUAGE */
-.langs button{
-  background:#102440!important;
-  border:1px solid #25466d!important;
-  color:#b9cce5!important;
-}
-
-.langs button.on{
-  background:#168cff!important;
-  color:white!important;
-}
-
-/* LEAGUES */
-.leagues{
-  padding:16px!important;
-  gap:10px!important;
-  background:#071326!important;
-  border-bottom:1px solid #172d4b;
-}
-
-.liga-btn{
-  background:#102440!important;
-  border:1px solid #25466d!important;
-  color:#dceaff!important;
-  border-radius:12px!important;
-  padding:11px 15px!important;
-  font-weight:600!important;
-}
-
-.liga-btn.sel{
-  background:#0879ee!important;
-  color:white!important;
-  border-color:#168cff!important;
-}
-
-/* MAIN */
-main{
-  padding:16px!important;
-  max-width:1250px;
-  margin:auto;
-}
-
-/* CARDS */
-.res,.mc{
-  background:linear-gradient(145deg,#102440,#0a172b)!important;
-  border:1px solid #203d62!important;
-  border-radius:16px!important;
-  padding:16px!important;
-  margin-bottom:12px!important;
-  box-shadow:0 5px 18px #0003;
-}
-
-.res h3{
-  color:#eaf4ff!important;
-  font-size:17px!important;
-}
-
-.res p{
-  color:#9db3d0!important;
-}
-
-.mc .d{
-  color:#7fa7d8!important;
-  font-size:11px!important;
-  letter-spacing:.7px;
-}
-
-.mc .t{
-  color:#f2f7ff!important;
-  font-size:14px!important;
-  line-height:2.2!important;
-}
-
-.sc{
-  background:#123968!important;
-  color:#55b4ff!important;
-  border:1px solid #245c94;
-  border-radius:10px!important;
-}
-
-/* LEAGUE PAGE */
-.art h1{
-  font-size:27px!important;
-  font-weight:800!important;
-  color:white!important;
-}
-
-.art h2,.art h3{
-  color:#eaf4ff!important;
-}
-
-.art p{
-  color:#c0d0e5!important;
-}
-
-.back{
-  color:#45aaff!important;
-}
-
-.sub{
-  color:#55b4ff!important;
-  font-size:12px!important;
-  font-weight:800!important;
-}
-
-/* TABS */
-.liga-nav{
-  background:#0c1b31!important;
-  border:1px solid #203d62!important;
-  border-radius:13px!important;
-}
-
-.liga-nav-btn{
-  color:#91a8c5!important;
-}
-
-.liga-nav-btn.active{
-  background:#123967!important;
-  color:white!important;
-  border-bottom:3px solid #168cff!important;
-}
-
-/* TABLE */
-.st{
-  background:#0c1930!important;
-  border:1px solid #203d62!important;
-  border-radius:12px!important;
-  overflow:hidden;
-}
-
-.st th{
-  background:#142c4b!important;
-  color:#65baff!important;
-}
-
-.st td{
-  border-bottom:1px solid #1a304e!important;
-  color:#e3edfa!important;
-}
-
-.st tr:nth-child(even) td{
-  background:#ffffff05;
-}
-
-.pts{
-  color:#55b4ff!important;
-}
-
-.cr{
-  width:25px!important;
-  height:25px!important;
-}
-
-/* SETTINGS AND NAVIGATION */
-#bn{
-  background:rgba(5,15,30,.96)!important;
-  border-top:1px solid #24466d!important;
-  backdrop-filter:blur(15px);
-}
-
-#bn button{
-  color:#91a8c5!important;
-}
-
-#bn button.on{
-  color:#39a6ff!important;
-}
-
-/* FOOTER */
-footer{
-  color:#8198b5!important;
-  border-top:1px solid #1b304b;
-  background:#071326;
-}
-
-/* MOBILE */
-@media(max-width:600px){
-  header{
-    padding:17px 14px!important;
-  }
-
-  .logo{
-    font-size:27px!important;
-  }
-
-  main{
-    padding:13px!important;
-  }
-
-  .leagues{
-    padding:12px!important;
-  }
-
-  .res,.mc{
-    border-radius:14px!important;
-  }
-
-  .st{
-    font-size:12px!important;
-  }
-
-  .art h1{
-    font-size:24px!important;
-  }
-}
-
-/* DESKTOP */
-@media(min-width:900px){
-  header{
-    padding:25px max(calc((100% - 1200px)/2),30px)!important;
-  }
-
-  .leagues{
-    justify-content:center;
-  }
-}
-</style>
+})();
+</script>
