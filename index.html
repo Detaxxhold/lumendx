@@ -1204,3 +1204,44 @@ body{padding-bottom:58px!important}
 #bn button{padding:6px 0 7px!important;font-size:10px!important}
 #bn button svg{width:22px!important;height:22px!important}
              </style>
+<style>
+/* LUMENDX league logos */
+.liga-btn{display:inline-flex!important;align-items:center}
+.bx-lc{width:20px;height:20px;object-fit:contain;background:rgba(255,255,255,.92);border-radius:6px;padding:2px;margin-right:8px}
+.art h1.bx-h{display:flex;align-items:center}
+.bx-lh{width:44px;height:44px;object-fit:contain;background:rgba(255,255,255,.92);border-radius:12px;padding:5px;margin-right:12px}
+</style>
+<script>
+(function(){
+function code(b){var m=/openLeague\(["'](\w+)["']\)/.exec(b.getAttribute("onclick")||"");return m?m[1]:""}
+function img(c,cls){var i=new Image();i.className=cls;i.alt="";i.onerror=function(){i.remove()};i.src="https://crests.football-data.org/"+c+".png";return i}
+function chips(){
+ var box=document.getElementById("leagues");
+ if(!box)return;
+ box.querySelectorAll(".liga-btn").forEach(function(b){
+  if(b.getAttribute("data-lc"))return;
+  var c=code(b);
+  if(!c)return;
+  b.setAttribute("data-lc","1");
+  b.insertBefore(img(c,"bx-lc"),b.firstChild);
+ });
+}
+function title(){
+ var h=document.querySelector("#app .art h1");
+ if(!h||h.getAttribute("data-lh"))return;
+ var p=h.parentNode;
+ if(!p||!p.querySelector(".liga-nav"))return;
+ var c=window.cur;
+ if(!c||c=="MORE")return;
+ h.setAttribute("data-lh","1");
+ h.classList.add("bx-h");
+ h.insertBefore(img(c,"bx-lh"),h.firstChild);
+}
+function run(){chips();title()}
+var o={childList:true,subtree:true};
+var a=document.getElementById("leagues"),b=document.getElementById("app");
+if(a)new MutationObserver(run).observe(a,o);
+if(b)new MutationObserver(run).observe(b,o);
+run();
+})();
+</script>
