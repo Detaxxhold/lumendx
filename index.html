@@ -831,3 +831,285 @@ document.body.appendChild(b);
 </script>
 <style>
 </style>
+
+<style>
+/* ===== LUMENDX FOOTBALL REDESIGN ===== */
+
+:root{
+  --bg:#050d1b;
+  --card:#0c1930;
+  --card2:#112440;
+  --bd:#1d3659;
+  --ac:#168cff;
+  --acd:#061426;
+  --tx:#f4f8ff;
+  --mu:#91a8c5;
+  --soft:#102849;
+  --head:#071326;
+}
+
+body{
+  background:
+    radial-gradient(ellipse at 50% -20%,#12366a 0%,transparent 55%),
+    var(--bg)!important;
+  color:var(--tx)!important;
+  font-family:Arial,sans-serif!important;
+}
+
+/* HEADER */
+header{
+  background:linear-gradient(135deg,#0b1c37,#071326)!important;
+  border-bottom:1px solid #1c4b80!important;
+  padding:20px 16px!important;
+}
+
+.logo{
+  font-size:30px!important;
+  font-weight:900!important;
+  letter-spacing:2px!important;
+}
+
+.logo span{
+  color:#168cff!important;
+}
+
+header p{
+  color:var(--mu)!important;
+}
+
+/* SEARCH */
+.row{
+  gap:10px!important;
+}
+
+#q{
+  background:#0b1930!important;
+  border:1px solid #24466f!important;
+  border-radius:13px!important;
+  padding:14px!important;
+}
+
+#go{
+  background:linear-gradient(135deg,#168cff,#0757d5)!important;
+  color:white!important;
+  border-radius:13px!important;
+  padding:0 20px!important;
+}
+
+/* LANGUAGE */
+.langs button{
+  background:#102440!important;
+  border:1px solid #25466d!important;
+  color:#b9cce5!important;
+}
+
+.langs button.on{
+  background:#168cff!important;
+  color:white!important;
+}
+
+/* LEAGUES */
+.leagues{
+  padding:16px!important;
+  gap:10px!important;
+  background:#071326!important;
+  border-bottom:1px solid #172d4b;
+}
+
+.liga-btn{
+  background:#102440!important;
+  border:1px solid #25466d!important;
+  color:#dceaff!important;
+  border-radius:12px!important;
+  padding:11px 15px!important;
+  font-weight:600!important;
+}
+
+.liga-btn.sel{
+  background:#0879ee!important;
+  color:white!important;
+  border-color:#168cff!important;
+}
+
+/* MAIN */
+main{
+  padding:16px!important;
+  max-width:1250px;
+  margin:auto;
+}
+
+/* CARDS */
+.res,.mc{
+  background:linear-gradient(145deg,#102440,#0a172b)!important;
+  border:1px solid #203d62!important;
+  border-radius:16px!important;
+  padding:16px!important;
+  margin-bottom:12px!important;
+  box-shadow:0 5px 18px #0003;
+}
+
+.res h3{
+  color:#eaf4ff!important;
+  font-size:17px!important;
+}
+
+.res p{
+  color:#9db3d0!important;
+}
+
+.mc .d{
+  color:#7fa7d8!important;
+  font-size:11px!important;
+  letter-spacing:.7px;
+}
+
+.mc .t{
+  color:#f2f7ff!important;
+  font-size:14px!important;
+  line-height:2.2!important;
+}
+
+.sc{
+  background:#123968!important;
+  color:#55b4ff!important;
+  border:1px solid #245c94;
+  border-radius:10px!important;
+}
+
+/* LEAGUE PAGE */
+.art h1{
+  font-size:27px!important;
+  font-weight:800!important;
+  color:white!important;
+}
+
+.art h2,.art h3{
+  color:#eaf4ff!important;
+}
+
+.art p{
+  color:#c0d0e5!important;
+}
+
+.back{
+  color:#45aaff!important;
+}
+
+.sub{
+  color:#55b4ff!important;
+  font-size:12px!important;
+  font-weight:800!important;
+}
+
+/* TABS */
+.liga-nav{
+  background:#0c1b31!important;
+  border:1px solid #203d62!important;
+  border-radius:13px!important;
+}
+
+.liga-nav-btn{
+  color:#91a8c5!important;
+}
+
+.liga-nav-btn.active{
+  background:#123967!important;
+  color:white!important;
+  border-bottom:3px solid #168cff!important;
+}
+
+/* TABLE */
+.st{
+  background:#0c1930!important;
+  border:1px solid #203d62!important;
+  border-radius:12px!important;
+  overflow:hidden;
+}
+
+.st th{
+  background:#142c4b!important;
+  color:#65baff!important;
+}
+
+.st td{
+  border-bottom:1px solid #1a304e!important;
+  color:#e3edfa!important;
+}
+
+.st tr:nth-child(even) td{
+  background:#ffffff05;
+}
+
+.pts{
+  color:#55b4ff!important;
+}
+
+.cr{
+  width:25px!important;
+  height:25px!important;
+}
+
+/* SETTINGS AND NAVIGATION */
+#bn{
+  background:rgba(5,15,30,.96)!important;
+  border-top:1px solid #24466d!important;
+  backdrop-filter:blur(15px);
+}
+
+#bn button{
+  color:#91a8c5!important;
+}
+
+#bn button.on{
+  color:#39a6ff!important;
+}
+
+/* FOOTER */
+footer{
+  color:#8198b5!important;
+  border-top:1px solid #1b304b;
+  background:#071326;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  header{
+    padding:17px 14px!important;
+  }
+
+  .logo{
+    font-size:27px!important;
+  }
+
+  main{
+    padding:13px!important;
+  }
+
+  .leagues{
+    padding:12px!important;
+  }
+
+  .res,.mc{
+    border-radius:14px!important;
+  }
+
+  .st{
+    font-size:12px!important;
+  }
+
+  .art h1{
+    font-size:24px!important;
+  }
+}
+
+/* DESKTOP */
+@media(min-width:900px){
+  header{
+    padding:25px max(calc((100% - 1200px)/2),30px)!important;
+  }
+
+  .leagues{
+    justify-content:center;
+  }
+}
+</style>
