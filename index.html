@@ -809,3 +809,140 @@ body.light #bn{background:rgba(255,255,255,.97)!important}
  if(!cur)home();
 })();
 </script>
+<style>
+.stbn{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--bd);min-height:130px;background:radial-gradient(circle at 85% 60%,rgba(70,120,255,.6),transparent 55%),linear-gradient(135deg,#0c1b52,#050b1f);display:flex;align-items:center;padding:18px;color:#fff;margin-top:10px}
+.stbn b{font-size:34px;font-style:italic;font-weight:900;line-height:1}
+.stbn b i{color:var(--ac)}
+.stbn small{display:block;font-size:9px;letter-spacing:3px;opacity:.7;margin-top:8px}
+.stbn svg{position:absolute;right:-24px;top:50%;transform:translateY(-50%);width:170px;height:170px}
+.stcd{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin:12px 0}
+.stlg{width:54px;height:54px;border-radius:50%;border:2px solid var(--ac);display:flex;align-items:center;justify-content:center;font-weight:900;font-style:italic;color:var(--ac);font-size:20px;flex:none}
+.stpl{padding:6px 12px;border-radius:999px;font-size:13px;background:rgba(61,220,132,.15);color:#3ddc84}
+.stpl.off{background:rgba(255,90,95,.15);color:#ff5a5f}
+.sth{display:flex;align-items:center;gap:10px;margin:22px 0 10px;font-size:19px;font-weight:bold}
+.sth svg{color:var(--ac)}
+.stg{background:var(--card);border:1px solid var(--bd);border-radius:16px;overflow:hidden}
+.str{display:flex;align-items:center;gap:14px;padding:14px;border-bottom:1px solid var(--bd);cursor:pointer}
+.str:last-child{border-bottom:0}
+.str .ri{width:30px;display:flex;justify-content:center;color:var(--tx);font-weight:bold;font-size:18px;flex:none}
+.str .rt{flex:1;min-width:0}
+.str .rt b{display:block;font-size:16px}
+.str .rt small{color:var(--mu);font-size:12px}
+.rv{color:var(--mu);display:flex;align-items:center;gap:8px;font-size:15px}
+.thb{width:76px;height:52px;border-radius:10px;position:relative;background:linear-gradient(135deg,#0c1b52,#050b1f);border:1px solid var(--bd);flex:none}
+.thb.l{background:linear-gradient(135deg,#ffffff,#dfe6f7)}
+.thb i{position:absolute;right:-6px;bottom:-6px;width:22px;height:22px;border-radius:50%;background:var(--ac);color:var(--acd);font-size:13px;font-style:normal;display:flex;align-items:center;justify-content:center}
+.acd{display:flex;gap:10px}
+.acd span{width:30px;height:30px;border-radius:50%;cursor:pointer;border:3px solid var(--card)}
+.acd span.on{box-shadow:0 0 0 2px var(--tx)}
+.tg2{width:50px;height:30px;border-radius:15px;background:var(--soft);position:relative;flex:none;border:1px solid var(--bd)}
+.tg2:after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#cfd6ee;transition:.2s}
+.tg2.on{background:var(--ac)}
+.tg2.on:after{left:23px;background:#fff}
+.strs{width:100%;margin-top:22px;background:rgba(229,56,59,.08);color:#ff5a5f;border:1px solid #ff5a5f;border-radius:14px;padding:14px;font-size:16px;font-weight:bold;cursor:pointer}
+#stm{position:fixed;left:0;right:0;top:0;bottom:0;z-index:200;background:rgba(0,0,0,.55);display:flex;align-items:flex-end}
+#stm .sh{width:100%;max-height:70vh;overflow:auto;background:var(--card);border-radius:20px 20px 0 0;padding:16px 16px 30px;border-top:1px solid var(--bd)}
+#stm .sh h3{margin:0 0 6px;font-size:20px}
+.sho{display:flex;justify-content:space-between;align-items:center;padding:15px 6px;border-bottom:1px solid var(--bd);cursor:pointer;font-size:16px}
+.rd{width:22px;height:22px;border-radius:50%;border:2px solid var(--mu);flex:none}
+.rd.on{border:7px solid var(--ac)}
+body.nt .hsec:has(#hmTT),body.nt #hmT{display:none}
+body.ns #hmS{display:none}
+</style>
+<script>
+(function(){
+ ACC.purple=["#8b5cf6","#6d3fd6","#ffffff","#ffffff"];
+ function apply2(){
+  document.body.classList.toggle("nt",sGet("nt","0")=="1");
+  document.body.classList.toggle("ns",sGet("ns","0")=="1");
+ }
+ var aa=applyAll;
+ applyAll=function(){aa();apply2()};
+ apply2();
+ var ico={
+  pal:ic('<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="10" r="1"/>'),
+  glb:ic('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>'),
+  db:ic('<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>'),
+  home:ic('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>'),
+  eye:ic('<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
+  lst:ic('<path d="M4 6h16M4 12h16M4 18h16"/>'),
+  str:ic('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>'),
+  trs:ic('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'),
+  inf:ic('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>'),
+  set:ic('<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>')
+ };
+ function row(i,t,d,r,c){
+  return '<div class="str"'+(c?' onclick="'+c+'"':'')+'><div class="ri">'+i+'</div><div class="rt"><b>'+t+'</b>'+(d?'<small>'+d+'</small>':'')+'</div><div class="rv">'+r+'</div></div>';
+ }
+ function tgl(key,inv,t,d,i){
+  var on=inv?sGet(key,"0")!="1":sGet(key,"0")=="1";
+  return row(i,t,d,'<div class="tg2'+(on?' on':'')+'"></div>','stTog(\''+key+'\')');
+ }
+ function sec(t,i){return '<div class="sth">'+i+'<span>'+t+'</span></div>'}
+ var ARW='<span style="font-size:22px">›</span>';
+ window.stTog=function(k){sSet(k,sGet(k,"0")=="1"?"0":"1");applyAll();stRender()};
+ window.stAcc=function(k){sSet("acc",k);applyAll();stRender()};
+ window.stClose=function(){var e=document.getElementById("stm");if(e)e.remove()};
+ window.stSet=function(k,v){
+  sSet(k,v);
+  if(k=="wl"&&LANGS[v]){lang=v;setup()}
+  applyAll();stClose();stRender();
+ };
+ function sheet(title,html){
+  stClose();
+  var d=document.createElement("div");d.id="stm";
+  d.setAttribute("onclick","if(event.target===this)stClose()");
+  d.innerHTML='<div class="sh"><h3>'+title+'</h3>'+html+'</div>';
+  document.body.appendChild(d);
+ }
+ window.stOpen=function(key){
+  var cfg={
+   mode:["Theme",[["dark","Dark"],["light","Light"],["system","System"]],"dark"],
+   fs:["Font size",[["s","Small"],["m","Medium"],["l","Large"]],"m"],
+   wl:["Search language",[["en","English"],["ru","Русский"],["ky","Кыргызча"]],"en"],
+   dl:["Start page",[["","Home"]].concat(Object.keys(LG).map(function(k){return [k,LG[k].n]})),""]
+  }[key];
+  var cv=sGet(key,cfg[2]);
+  sheet(cfg[0],cfg[1].map(function(o){return '<div class="sho" onclick="stSet(\''+key+'\',\''+o[0]+'\')"><span>'+o[1]+'</span><i class="rd'+(cv==o[0]?' on':'')+'"></i></div>'}).join(""));
+ };
+ window.stAbout=function(){
+  sheet("About LUMENDX",'<p style="line-height:1.7;color:var(--mu)">LUMENDX is a football web app.<br><br>Football data: football-data.org<br>Photos and articles: Wikipedia<br>Data updates every hour.</p>');
+ };
+ window.stClearFav=function(){if(confirm("Clear favorite teams?")){favSet([]);stRender()}};
+ window.stResetAll=function(){
+  if(!confirm("Reset all settings?"))return;
+  ["mode","acc","fs","dl","wl","ds","nt","ns"].forEach(function(k){try{localStorage.removeItem("s_"+k)}catch(e){}});
+  lang="en";setup();applyAll();stRender();
+ };
+ window.stRender=function(){
+  var m=sGet("mode","dark");
+  var light=m=="light"||(m=="system"&&window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches);
+  var ac=sGet("acc","blue");
+  var dl=sGet("dl","");
+  var online=navigator.onLine;
+  var dots=["blue","green","red","gold","purple"].map(function(k){return '<span class="'+(k==ac?'on':'')+'" style="background:'+ACC[k][0]+'" onclick="stAcc(\''+k+'\')"></span>'}).join("");
+  var h='<div class="art" style="padding-bottom:10px"><h1 style="margin:6px 0 2px">Settings</h1><div style="color:var(--mu);font-size:14px">Customize your LUMENDX experience</div>';
+  h+='<div class="stbn"><div><b>LUMEN<i>DX</i></b><small>FOOTBALL • LIVE • MORE</small></div><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#e9eefc"/><path d="M50 30l17 12-6 20H39l-6-20z" fill="#12214f"/><path d="M50 30V8M67 42l24-8M61 62l14 20M39 62L25 82M33 42L9 34" stroke="#12214f" stroke-width="3" fill="none"/><circle cx="50" cy="50" r="48" fill="none" stroke="#8fa6e6" stroke-width="2"/></svg></div>';
+  h+='<div class="stcd"><div class="stlg">LD</div><div style="flex:1"><b style="font-size:19px">LUMENDX</b><br><small style="color:var(--mu)">v1.0</small></div><div class="stpl'+(online?'':' off')+'">'+(online?'● Online':'● Offline')+'</div></div>';
+  h+=sec("Appearance",ico.set);
+  h+='<div class="stg"><div class="str" onclick="stOpen(\'mode\')"><div class="thb'+(light?' l':'')+'"><i>✓</i></div><div class="rt"><b>Theme</b><small>'+{dark:"Dark",light:"Light",system:"System"}[m]+'</small></div><div class="rv">'+ARW+'</div></div>';
+  h+=row(ico.pal,"Accent color","Choose your favorite color",'<div class="acd">'+dots+'</div>');
+  h+=row('Aa',"Font size","Adjust text size",'<span>'+{s:"Small",m:"Medium",l:"Large"}[sGet("fs","m")]+'</span>'+ARW,"stOpen('fs')")+'</div>';
+  h+=sec("Language & Data",ico.glb);
+  h+='<div class="stg">'+row(ico.glb,"Search language","Wikipedia articles and photos",'<span>'+(LANGS[sGet("wl","en")]||"English")+'</span>'+ARW,"stOpen('wl')");
+  h+=tgl("ds",false,"Data saver","Use less mobile data (no player photos)",ico.db)+'</div>';
+  h+=sec("Home screen",ico.home);
+  h+='<div class="stg">'+tgl("nt",true,"Matches today","Show today's matches on Home",ico.eye);
+  h+=tgl("ns",true,"League table","Show standings on Home",ico.lst);
+  h+=row(ico.home,"Start page","Opens when you launch the app",'<span>'+(dl&&LG[dl]?LG[dl].n:"Home")+'</span>'+ARW,"stOpen('dl')")+'</div>';
+  h+=sec("Other",ico.inf);
+  h+='<div class="stg">'+row(ico.str,"Favorites","Your favorite teams",'<span>'+favGet().length+'</span>'+ARW,"setTab(3)");
+  h+=row(ico.trs,"Storage","Clear your favorite teams",ARW,"stClearFav()");
+  h+=row(ico.inf,"About LUMENDX","App information",ARW,"stAbout()")+'</div>';
+  h+='<button class="strs" onclick="stResetAll()">Reset all settings</button></div>';
+  document.getElementById("app").innerHTML=h;
+ };
+ setPage=stRender;
+ sShow=stRender;
+})();
+</script>
