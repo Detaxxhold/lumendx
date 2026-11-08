@@ -999,3 +999,73 @@ body.light .sx-chip img{filter:none}
 .sx-q small{color:var(--mu);font-size:12px}
 .sx-q .ar{margin-left:auto;font-size:22px;color:var(--mu)}
 </style>
+function load(c){
+ var b=document.getElementById("sxb");
+ if(!b)return;
+ b.innerHTML="<div class='sx-card' id='sxt'><div class='msg'>Loading...</div></div><div class='sx-two'><div class='sx-card' id='sxs'></div><div class='sx-card' id='sxa'></div></div><div class='sx-card' id='sxk'></div><div id='sxm'></div>";
+ var z=LG[c].z;
+ fdc(c,"standings").then(function(d){
+  var el=document.getElementById("sxt");
+  if(!el||c!=SXC)return;
+  var t=d.standings[0].table.slice(0,5);
+  var yr=d.season?d.season.startDate.slice(0,4)+"/"+d.season.endDate.slice(2,4):"";
+  var h="<div class='sx-h'><h3>"+TRO+"League Table</h3><span class='sx-pill'>"+yr+"</span></div><table class='sx-t'><tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>";
+  t.forEach(function(r,i){
+   var p=r.position,k=p>=z[3]?"rel":p<=z[0]?"cl":p<=z[1]?"el":p<=z[2]?"co":"";
+   var gd=r.goalDifference>0?"+"+r.goalDifference:r.goalDifference;
+   h+="<tr class='"+k+(i==0?" f":"")+"' onclick='sxTeam(\""+c+"\","+r.team.id+")'><td>"+p+"</td><td><span class='tn'>"+cr(r.team)+nm(r.team)+"</span></td><td>"+r.playedGames+"</td><td>"+r.won+"</td><td>"+r.draw+"</td><td>"+r.lost+"</td><td>"+gd+"</td><td>"+r.points+"</td></tr>";
+  });
+  el.innerHTML=h+"</table><div class='sx-more' onclick=\"sxGo('"+c+"','t')\">Full table →</div>";
+ }).catch(function(){var e=document.getElementById("sxt");if(e)e.innerHTML="<div class='msg'>Data is not ready yet.</div>"});
+ fdc(c,"scorers").then(function(d){
+  if(c!=SXC)return;
+  var sc=d.scorers||[];
+  var top=sc.slice(0,3);
+  var as=sc.filter(function(x){return (x.assists||0)>0}).sort(function(a,b){return b.assists-a.assists}).slice(0,3);
+  var S=document.getElementById("sxs"),A=document.getElementById("sxa");
+  if(S)S.innerHTML="<div class='sx-h'><h3>"+BALL+"Top Scorers</h3></div>"+plist(top,"goals","s",c);
+  if(A)A.innerHTML="<div class='sx-h'><h3>"+BAR+"Top Assists</h3></div>"+plist(as,"assists","a",c);
+  photos(top,"s");photos(as,"a");
+ }).catch(function(){
+  var S=document.getElementById("sxs"),A=document.getElementById("sxa");
+  if(S)S.innerHTML="<div class='msg'>No data yet.</div>";
+  if(A)A.innerHTML="<div class='msg'>No data yet.</div>";
+ });
+ fdc(c,"matches").then(function(d){
+  if(c!=SXC)return;
+  var K=document.getElementById("sxk"),M=document.getElementById("sxm");
+  if(!K)return;
+  var f=(d.matches||[]).filter(function(m){var x=m.score&&m.score.fullTime;return m.status=="FINISHED"&&x&&x.home!==null&&x.home!==undefined});
+  if(!f.length){K.innerHTML="<div class='sx-h'><h3>"+CHART+"Season Stats</h3></div><div class='msg'>No finished matches yet.</div>";return}
+  var g=0,hw=0,dw=0,aw=0,o25=0,bt=0,cs=0,big=f[0],bg=-1,T={};
+  f.forEach(function(m){
+   var h=m.score.fullTime.home,a=m.score.fullTime.away,t=h+a;
+   g+=t;
+   if(h>a)hw++;else if(h==a)dw++;else aw++;
+   if(t>2)o25++;
+   if(h>0&&a>0)bt++;
+   if(t>bg){bg=t;big=m}
+   [[m.homeTeam,h,a],[m.awayTeam,a,h]].forEach(function(q){
+    var k=q[0].id;
+    if(!T[k])T[k]={t:q[0],gf:0,ga:0,cs:0};
+    T[k].gf+=q[1];T[k].ga+=q[2];
+    if(q[2]==0){T[k].cs++;cs++}
+   });
+  });
+  var arr=Object.keys(T).map(function(k){return T[k]});
+  var att=arr.slice().sort(function(a,b){return b.gf-a.gf})[0];
+  var def=arr.slice().sort(function(a,b){return a.ga-b.ga})[0];
+  var csx=arr.slice().sort(function(a,b){return b.cs-a.cs})[0];
+  var n=f.length;
+  function pc(v){return Math.round(v*100/n)+"%"}
+  function tile(ic,l,v){return "<div class='sx-tile'>"+ic+"<small>"+l+"</small><b>"+v+"</b></div>"}
+  var gs="<svg viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='9'/><path d='M12 8l3.5 2.5-1.3 4h-4.4l-1.3-4z'/></svg>";
+  var gt="<svg viewBox='0 0 24 24' fill='#ffc23c'><path d='M7 3h10v5a5 5 0 01-10 0zM9 19h6v2H9zM11 13h2v6h-2z'/></svg>";
+  var ga="<svg viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round'><rect x='3' y='5' width='18' height='14' rx='2'/><path d='M3 12h18M12 5v14'/></svg>";
+  var gc="<svg viewBox='0 0 24 24' fill='none' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z'/><path d='M9 12l2 2 4-4'/></svg>";
+  K.innerHTML="<div class='sx-h'><h3>"+CHART+"Season Stats</h3></div><div class='sx-tiles'>"+tile(gs,"Matches",n)+tile(gt,"Goals",g)+tile(ga,"Avg. Goals",(g/n).toFixed(2))+tile(gc,"Clean Sheets",cs)+"</div>";
+  if(M){
+   M.innerHTML="<div class='sx-card'><div class='sx-h'><h3>"+BAR+"Results & Teams</h3></div>"+mrow("Home wins",pc(hw))+mrow("Draws",pc(dw))+mrow("Away wins",pc(aw))+mrow("Over 2.5 goals",pc(o25))+mrow("Both teams scored",pc(bt))+mrow("Best attack",cr(att.t)+nm(att.t)+" ("+att.gf+")")+mrow("Best defence",cr(def.t)+nm(def.t)+" ("+def.ga+" conceded)")+mrow("Most clean sheets",cr(csx.t)+nm(csx.t)+" ("+csx.cs+")")+"</div><div class='sx-card'><div class='sx-h'><h3>"+TRO+"Highest scoring match</h3></div>"+mini(c,big)+"</div>";
+  }
+ }).catch(function(){var K=document.getElementById("sxk");if(K)K.innerHTML="<div class='msg'>Data is not ready yet.</div>"});
+}
