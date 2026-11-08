@@ -1139,3 +1139,41 @@ function load(c){
   }
  }).catch(function(){var K=document.getElementById("sxk");if(K)K.innerHTML="<div class='msg'>Data is not ready yet.</div>"});
 }
+    function page(){
+ var app=document.getElementById("app");
+ var ballSvg="<svg class='ball' viewBox='0 0 100 100'><defs><radialGradient id='sxg' cx='35%' cy='30%'><stop offset='0' stop-color='#e6eeff'/><stop offset='1' stop-color='#5b7fe0'/></radialGradient></defs><circle cx='50' cy='50' r='46' fill='url(#sxg)'/><path d='M50 30l17 12-6 20H39l-6-20z' fill='#12214f' opacity='.85'/><path d='M50 30V6M67 42l26-9M61 62l15 22M39 62L24 84M33 42L7 33' stroke='#12214f' stroke-width='3' fill='none' opacity='.7'/></svg>";
+ var bars="<svg class='bars' viewBox='0 0 44 44'><defs><linearGradient id='sxbg' x1='0' y1='1' x2='0' y2='0'><stop offset='0' stop-color='#1d6bff'/><stop offset='1' stop-color='#4fc3ff'/></linearGradient></defs><rect x='3' y='24' width='9' height='17' rx='2' fill='url(#sxbg)'/><rect x='17' y='14' width='9' height='27' rx='2' fill='url(#sxbg)'/><rect x='31' y='3' width='9' height='38' rx='2' fill='url(#sxbg)'/></svg>";
+ var quiz="<div class='sx-q' onclick='qzStart()'><div class='qi'><svg viewBox='0 0 24 24' width='24' height='24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='5'/><circle cx='12' cy='12' r='1.5'/></svg></div><div><b>Football quiz</b><small>Test your football knowledge</small></div><span class='ar'>›</span></div>";
+ app.innerHTML="<div class='sx'><div class='sx-b'>"+bars+"<div><b>Statistics</b><small>Latest football statistics and data</small></div>"+ballSvg+"</div><div id='sxc'></div><div id='sxb'></div>"+quiz+"</div>";
+ chips();
+ load(SXC);
+}
+window.sxPick=function(c){SXC=c;chips();load(c)};
+window.sxMore=function(){MORE=!MORE;chips()};
+window.sxGo=function(c,tab){
+ cur=c;setupLeagues();
+ shell(c,"setTab(4)","← Statistics");
+ navOn(4);
+ if(tab=="s")tabScorers();else tabTable();
+ window.scrollTo(0,0);
+};
+window.sxTeam=function(c,id){
+ cur=c;setupLeagues();
+ shell(c,"setTab(4)","← Statistics");
+ navOn(4);
+ openTeam(id);
+ window.scrollTo(0,0);
+};
+window.sxMatch=function(c,id){
+ cur=c;setupLeagues();
+ shell(c,"setTab(4)","← Statistics");
+ navOn(4);
+ openMatch(id);
+ window.scrollTo(0,0);
+};
+window.gridPage=function(title,t){
+ if(t=="s")page();
+ else if(og)og(title,t);
+};
+})();
+   </script>
